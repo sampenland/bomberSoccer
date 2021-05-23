@@ -24,7 +24,13 @@ export default class SplashScreen extends Phaser.Scene
             targets: logo, 
             alpha: 0,
             yoyo: true,
-            loop: -1
+            onComplete: () => {this.nextScene();}
         });
+    }
+
+    nextScene() {
+
+        this.scene.start("mainMenu");
+
     }
 }

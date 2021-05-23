@@ -1,4 +1,6 @@
 import Phaser from 'phaser'
+import Game from './scenes/Game';
+import MainMenu from './scenes/MainMenu'
 import SplashScreen from './scenes/SplashScreen'
 
 const config:Phaser.Types.Core.GameConfig = {
@@ -16,7 +18,14 @@ const config:Phaser.Types.Core.GameConfig = {
 			gravity: { y: 0 }
 		}
 	},
-	scene: [SplashScreen]
+	callbacks:{
+		postBoot: function(game){
+			game.canvas.style.margin = "0px";
+			game.canvas.style.width = "100%";
+			game.canvas.style.height = "100%";
+		}
+	},
+	scene: [SplashScreen, MainMenu, Game]
 }
 
 export default new Phaser.Game(config)

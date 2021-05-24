@@ -1,5 +1,6 @@
 /.cache
 /dist
 /node_modules
+/src/server/node_modules
 /package-lock.json
 /.DS_Store

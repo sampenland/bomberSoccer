@@ -11,10 +11,20 @@ export default class SplashScreen extends Phaser.Scene
 
 	preload()
     {
+        this.load.scenePlugin({
+            key: 'rexuiplugin',
+            url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js',
+            sceneKey: 'rexUI'
+        });
+        
+        this.load.plugin('rextexteditplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rextexteditplugin.min.js', true);
+    
+
         this.cameras.main.backgroundColor = Colors.logoBackground;
 
         this.load.setBaseURL('assets');
         this.load.image('logo', 'spinlandIcon.png');
+
     }
 
     create()
@@ -23,8 +33,15 @@ export default class SplashScreen extends Phaser.Scene
         this.tweens.add({
             targets: logo, 
             alpha: 0,
-            yoyo: true,
-            onComplete: () => {this.nextScene();}
+            yoyo: true
+        });
+
+        const text = this.add.text(this.cameras.main.centerX + 12, this.cameras.main.centerY + 30, 'Enter Name', { fixedWidth: 125, fixedHeight: 20 });
+        text.setOrigin(0.5, 0.5);
+        text.setFontSize(18);
+
+        text.setInteractive().on('pointerdown', () => {
+            this.rexUI.edit(text);
         });
     }
 

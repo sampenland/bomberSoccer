@@ -1,4 +1,5 @@
 import 'regenerator-runtime/runtime'
+import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin'
 import Phaser from 'phaser'
 import Game from './scenes/Game';
 import MainMenu from './scenes/MainMenu'
@@ -19,6 +20,10 @@ const config:Phaser.Types.Core.GameConfig = {
 			gravity: { y: 0 }
 		}
 	},
+	parent: 'phaser-container',
+	dom: {
+        createContainer: true
+    },
 	callbacks:{
 		postBoot: function(game){
 			game.canvas.style.margin = "0px";

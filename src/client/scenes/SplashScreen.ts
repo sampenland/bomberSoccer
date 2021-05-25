@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import Colors from '~/globals/Colors';
+import Colors from '../globals/Colors';
 
 export default class SplashScreen extends Phaser.Scene
 {

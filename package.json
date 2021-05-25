@@ -19,7 +19,8 @@
 	},
 	"dependencies": {
 		"colyseus.js": "^0.14.12",
-		"phaser": "^3.50.1"
+		"phaser": "^3.50.1",
+		"regenerator-runtime": "^0.13.7"
 	},
 	"parcelCleanPaths": [
 		"dist"

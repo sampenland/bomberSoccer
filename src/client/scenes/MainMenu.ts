@@ -1,5 +1,7 @@
 import Phaser from 'phaser'
-import Colors from '~/globals/Colors';
+import Colors from '../globals/Colors';
+import * as Colyseus from 'colyseus.js'
+import {Client} from 'colyseus.js'
 
 interface xy { x: number, y:number};
 
@@ -18,11 +20,29 @@ export default class MainMenu extends Phaser.Scene
     menuNewGame:Phaser.GameObjects.BitmapText | undefined;
     menuHighScores:Phaser.GameObjects.BitmapText | undefined;
 
+    client:Client;
+
 	constructor()
 	{
 		super('mainMenu');
         console.log('Main Menu booted.');
+
+        this.client = new Colyseus.Client("ws://localhost:2567");
+        this.joinMainLobby();
 	}
+
+    async joinMainLobby(){
+
+        try {
+
+            const room = await this.client.joinOrCreate("mainLobby", {/* options */});
+            console.log("Join passed.", room);
+        
+        } catch (e) {
+            console.error("Join failed.", e);
+        }
+
+    }
 
 	preload()
     {

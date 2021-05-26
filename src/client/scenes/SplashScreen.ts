@@ -1,11 +1,9 @@
 import Phaser from 'phaser'
 import Colors from '../globals/Colors';
+import GameManager from '../globals/GameManager';
 
 export default class SplashScreen extends Phaser.Scene
 {
-    public static playerName:string;
-
-    rexUI: any;
 
 	constructor()
 	{
@@ -50,8 +48,14 @@ export default class SplashScreen extends Phaser.Scene
 
             if (event.target.name === 'submitButton')
             {
-                var inputUsername = element.getChildByName('username');
-                console.log(inputUsername);
+                var inputUsername = (element.getChildByName('username') as HTMLInputElement).value;
+
+                if(inputUsername != null && inputUsername != ""){
+
+                    GameManager.playerName = inputUsername;
+                    this.scene.start('mainMenu');
+                }
+
             }
         });
         

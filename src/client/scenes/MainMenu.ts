@@ -20,6 +20,8 @@ export default class MainMenu extends Phaser.Scene
     menuNewGame:Phaser.GameObjects.BitmapText | undefined;
     menuHighScores:Phaser.GameObjects.BitmapText | undefined;
 
+    menu:Phaser.GameObjects.DOMElement | undefined;
+
 	constructor()
 	{
 		super('mainMenu');
@@ -29,8 +31,10 @@ export default class MainMenu extends Phaser.Scene
 
         try {
 
-            const room = await GameManager.client.joinOrCreate("mainLobby", {/* options */});
-            console.log("Join passed.", room);
+            GameManager.onlineRoom = await GameManager.client.joinOrCreate("mainLobby", {playerName: GameManager.playerName});
+            console.log("Join passed.", GameManager.onlineRoom);
+
+            GameManager.onlineRoom.onMessage('playerEnter', this.playerEnter);
         
         } catch (e) {
             console.error("Join failed.", e);
@@ -38,100 +42,46 @@ export default class MainMenu extends Phaser.Scene
 
     }
 
+    playerEnter(message:any){
+
+        if(message.playerName == null) return;
+
+        GameManager.opponentName = message.playerName;
+        if(this.menu){
+            this.menu.getChildByID("playerTwo").innerHTML = GameManager.opponentName;
+        }
+    }
+
 	preload()
     {
         this.load.setBaseURL('assets');
-
+        this.load.html('menu', 'html/mainMenu.html');
         this.load.bitmapFont('gameFont', 'fonts/gameFont.png', 'fonts/gameFont.fnt');
 
         this.cameras.main.backgroundColor = Colors.gameBackground;
-        this.load.image('arrow', 'sprites/arrow.png')
+        this.load.image('arrow', 'sprites/arrow.png');
     }
 
     create()
     {
-        console.log('Main Menu booted.');
+        console.log('Main Menu booted with playerName = ' + GameManager.playerName);
+
+        this.menu = this.add.dom(this.cameras.main.centerX - 45, 20).createFromCache('menu');
+        this.menu.getChildByID("playerOne").innerHTML = GameManager.playerName;
+        this.tweens.add({
+            targets:this.menu,
+            y:10,
+            yoyo:true,
+            loop:-1
+        })
 
         GameManager.client = new Colyseus.Client("ws://localhost:2567");
         this.joinMainLobby();
-
-        // cursor
-        this.input.setDefaultCursor('url(assets/sprites/cursor.png), pointer');
-
-        const title = this.add.bitmapText(this.cameras.main.centerX, this.cameras.main.centerY, 'gameFont', '', 32)
-            .setOrigin(0.5)
-            .setCenterAlign()
-            .setInteractive();
-
-        title.y = 30;
-        title.tint = Colors.lightGreen.color32;
-        title.setText('Space Shooter v.1');
-
-        this.menuNewGame = this.add.bitmapText(this.cameras.main.centerX, this.cameras.main.centerY, 'gameFont', 'New Game', 16)
-            .setOrigin(0.5)
-            .setCenterAlign()
-            .setInteractive();
-
-        this.menuNewGame.tint = Colors.lightGreen.color32;
-
-        this.menuNewGame.on('pointerdown', this.startNewGame, this);
-        this.menuNewGame.on('pointerover', this.newGameHover, this);
-        this.menuNewGame.on('pointerout', this.newGameExit, this);
-
-        this.menuHighScores = this.add.bitmapText(this.cameras.main.centerX, this.cameras.main.centerY, 'gameFont', 'High Scores', 16)
-            .setOrigin(0.5)
-            .setCenterAlign()
-            .setInteractive();
-
-        this.menuHighScores.y += 40;
-        this.menuHighScores.tint = Colors.lightGreen.color32;
-
-        this.menuHighScores.on('pointerdown', this.gotoHighScores, this);
-        this.menuHighScores.on('pointerover', this.highScoresHover, this);
-        this.menuHighScores.on('pointerout', this.highScoresExit, this);
-
-    }
-
-    newGameHover() {
-
-        if(this.menuNewGame) {
-            this.menuNewGame.tint = Colors.white.color32;
-        }
-
-    }
-
-    newGameExit() {
-
-        if(this.menuNewGame) {
-            this.menuNewGame.tint = Colors.lightGreen.color32;
-        }
 
     }
 
     startNewGame() {
         this.scene.start('game');
-    }
-
-    gotoHighScores() {
-
-        
-
-    }
-
-    highScoresExit() {
-
-        if(this.menuHighScores) {
-            this.menuHighScores.tint = Colors.lightGreen.color32;
-        }
-
-    }
-
-    highScoresHover() {
-       
-        if(this.menuHighScores) {
-            this.menuHighScores.tint = Colors.white.color32;
-        }
-
     }
 
     update(){

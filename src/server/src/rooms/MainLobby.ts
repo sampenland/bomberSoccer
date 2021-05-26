@@ -8,18 +8,11 @@ export class MainLobby extends Room<MainLobbyState> {
 
     this.setState(new MainLobbyState());
 
-    // listeners
-    this.onMessage("type", (client, message) => {
-      
-      
-
-    });
-
   }
 
   onJoin (client: Client, options: any) {
     
-    console.log(options.playerName + " [" + client.sessionId + "]", "joined Main Lobby.");
+    console.log(options.playerName + " [" + client.sessionId + "]", " joined A Main Lobby.");
     this.state.players.set(client.sessionId, new Player(options.playerName));
 
     if(this.state.players.size == 2) {      
@@ -34,11 +27,13 @@ export class MainLobby extends Room<MainLobbyState> {
   }
 
   onLeave (client: Client, consented: boolean) {
-    console.log(client.sessionId, "left Main Lobby!");
+    
+    const playerName = this.state.players.get(client.sessionId).name;
+    console.log(playerName + "[" + client.sessionId + "] left A Main Lobby!");
   }
 
   onDispose() {
-    console.log("room", this.roomId, "disposing Main Lobby...");
+    console.log("Room [" + this.roomId + "] disposing :: A Main Lobby...");
   }
 
 }

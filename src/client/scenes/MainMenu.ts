@@ -34,7 +34,8 @@ export default class MainMenu extends Phaser.Scene
             GameManager.onlineRoom = await GameManager.client.joinOrCreate("mainLobby", {playerName: GameManager.playerName});
             console.log("Join passed.", GameManager.onlineRoom);
 
-            GameManager.onlineRoom.onMessage('playerEnter', this.playerEnter);
+            GameManager.onlineRoom.onMessage('playerEnter', this.playerEnter.bind(this, this));
+            GameManager.onlineRoom.onMessage('updateOpponent', this.updateOpponent.bind(this, this));
         
         } catch (e) {
             console.error("Join failed.", e);
@@ -42,13 +43,23 @@ export default class MainMenu extends Phaser.Scene
 
     }
 
-    playerEnter(message:any){
+    updateOpponent(scene:this, message:any){
 
         if(message.playerName == null) return;
 
         GameManager.opponentName = message.playerName;
-        if(this.menu){
-            this.menu.getChildByID("playerTwo").innerHTML = GameManager.opponentName;
+        if(scene.menu){
+            scene.menu.getChildByID("playerTwo").innerHTML = GameManager.opponentName;
+        }
+    }
+
+    playerEnter(scene:this, message:any){
+
+        if(message.playerName == null) return;
+
+        GameManager.opponentName = message.playerName;
+        if(scene.menu){
+            scene.menu.getChildByID("playerTwo").innerHTML = GameManager.opponentName;
         }
     }
 

@@ -24,6 +24,11 @@ export class MainLobby extends Room<MainLobbyState> {
 
     if(this.state.players.size == 2) {      
       this.broadcast("playerEnter", {playerName: options.playerName}, { except: client });
+      this.state.playerTwo = this.state.players.get(client.sessionId);
+      client.send('updateOpponent', {playerName: this.state.playerOne.name});
+    }
+    else if(this.state.players.size == 1){
+      this.state.playerOne = this.state.players.get(client.sessionId);
     }
 
   }

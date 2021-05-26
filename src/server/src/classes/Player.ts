@@ -5,7 +5,6 @@ export class Player extends Schema {
     @type("string")
     name:string;
 
-
     constructor(name:string) {
 
         super();

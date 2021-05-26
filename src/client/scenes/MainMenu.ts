@@ -1,7 +1,7 @@
 import Phaser from 'phaser'
 import Colors from '../globals/Colors';
 import * as Colyseus from 'colyseus.js'
-import {Client} from 'colyseus.js'
+import GameManager from '../globals/GameManager';
 
 interface xy { x: number, y:number};
 
@@ -20,22 +20,16 @@ export default class MainMenu extends Phaser.Scene
     menuNewGame:Phaser.GameObjects.BitmapText | undefined;
     menuHighScores:Phaser.GameObjects.BitmapText | undefined;
 
-    client:Client;
-
 	constructor()
 	{
 		super('mainMenu');
-        console.log('Main Menu booted.');
-
-        this.client = new Colyseus.Client("ws://localhost:2567");
-        this.joinMainLobby();
 	}
 
     async joinMainLobby(){
 
         try {
 
-            const room = await this.client.joinOrCreate("mainLobby", {/* options */});
+            const room = await GameManager.client.joinOrCreate("mainLobby", {/* options */});
             console.log("Join passed.", room);
         
         } catch (e) {
@@ -56,6 +50,11 @@ export default class MainMenu extends Phaser.Scene
 
     create()
     {
+        console.log('Main Menu booted.');
+
+        GameManager.client = new Colyseus.Client("ws://localhost:2567");
+        this.joinMainLobby();
+
         // cursor
         this.input.setDefaultCursor('url(assets/sprites/cursor.png), pointer');
 

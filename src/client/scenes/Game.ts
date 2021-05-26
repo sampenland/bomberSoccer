@@ -9,7 +9,6 @@ export default class Game extends Phaser.Scene {
     constructor() {
 
         super('game');
-        console.log("Game booted.");
 
     }
 
@@ -28,6 +27,8 @@ export default class Game extends Phaser.Scene {
 
     create() {
 
+        console.log("Game booted.");
+        
         this.createLevel();
 
     }

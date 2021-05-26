@@ -3,51 +3,57 @@ import Colors from '../globals/Colors';
 
 export default class SplashScreen extends Phaser.Scene
 {
+    public static playerName:string;
+
+    rexUI: any;
+
 	constructor()
 	{
 		super('splashScreen');
-        console.log('Splash Screen booted.');
 	}
 
 	preload()
     {
-        this.load.scenePlugin({
-            key: 'rexuiplugin',
-            url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js',
-            sceneKey: 'rexUI'
-        });
-        
-        this.load.plugin('rextexteditplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rextexteditplugin.min.js', true);
-    
+        this.load.setBaseURL('assets');
+        this.load.html('login', 'html/splashScreen.html');
 
         this.cameras.main.backgroundColor = Colors.logoBackground;
-
-        this.load.setBaseURL('assets');
         this.load.image('logo', 'spinlandIcon.png');
+        this.load.spritesheet('spaceShip', 'sprites/player.png', {frameWidth: 12, frameHeight: 12});
 
     }
 
     create()
     {
-        let logo = this.add.image(this.cameras.main.centerX, this.cameras.main.centerY, 'logo');
+        console.log('Splash Screen booted.');
+
+        let logo = this.add.image(29, this.cameras.main.height - 29, 'logo');
         this.tweens.add({
             targets: logo, 
             alpha: 0,
-            yoyo: true
+            yoyo: true,
+            loop: -1
         });
 
-        const text = this.add.text(this.cameras.main.centerX + 12, this.cameras.main.centerY + 30, 'Enter Name', { fixedWidth: 125, fixedHeight: 20 });
-        text.setOrigin(0.5, 0.5);
-        text.setFontSize(18);
-
-        text.setInteractive().on('pointerdown', () => {
-            this.rexUI.edit(text);
+        let spaceShip = this.add.image(this.cameras.main.centerX - 60, this.cameras.main.centerY - 10, 'spaceShip');
+        this.tweens.add({
+            targets: spaceShip,
+            x: this.cameras.main.centerX + 60,
+            yoyo: true,
+            loop: -1
         });
-    }
 
-    nextScene() {
+        var element = this.add.dom(this.cameras.main.centerX - 20, 50).createFromCache('login');
+        element.addListener('click');
 
-        this.scene.start("mainMenu");
+        element.on('click',  (event) => {
 
+            if (event.target.name === 'submitButton')
+            {
+                var inputUsername = element.getChildByName('username');
+                console.log(inputUsername);
+            }
+        });
+        
     }
 }

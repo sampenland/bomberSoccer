@@ -20,6 +20,7 @@ export default class SplashScreen extends Phaser.Scene
         this.load.image('logo', 'spinlandIcon.png');
         this.load.spritesheet('player', 'sprites/player.png', {frameWidth: 14, frameHeight: 14});
         this.load.spritesheet('bomb', 'sprites/bomb.png', {frameWidth: 8, frameHeight: 9});
+        this.load.spritesheet('bombExplode', 'sprites/bombExplode.png', {frameWidth: 24, frameHeight: 24});
 
     }
 
@@ -36,6 +37,17 @@ export default class SplashScreen extends Phaser.Scene
         });
 
         let player = this.add.sprite(this.cameras.main.centerX - 80, this.cameras.main.centerY - 10, 'player');
+        
+        for(var i = 0; i< 5;i++){
+
+            for(var j = 0; j < 5; j++){
+
+                let b = new FakeBomb(this, this.cameras.main.centerX - 130 + i * 10, this.cameras.main.centerY - 30 + j * 10, true);
+
+            }
+
+        }
+
         this.anims.create({
             key: 'playerNoBomb',
             frames: this.anims.generateFrameNumbers('player', { frames: [0]}),
@@ -83,7 +95,7 @@ export default class SplashScreen extends Phaser.Scene
             onComplete: () =>{
 
                 // drop bomb
-                let newBomb = new FakeBomb(this, player.x + 12, player.y + player.height/2, 'bomb');
+                let newBomb = new FakeBomb(this, player.x + 12, player.y + player.height/2);
 
                 // change sprite to no bomb and move back
                 player.play('playerNoBomb');

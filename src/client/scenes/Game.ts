@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import Player from '../gameObjects/player';
+import Player from '../gameObjects/Player';
 import Colors from '../globals/Colors'
 
 export default class Game extends Phaser.Scene {

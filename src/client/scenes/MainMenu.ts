@@ -1,16 +1,9 @@
 import Phaser from 'phaser'
 import Colors from '../globals/Colors';
-import * as Colyseus from 'colyseus.js'
 import GameManager from '../globals/GameManager';
-
-interface xy { x: number, y:number};
 
 export default class MainMenu extends Phaser.Scene
 {
-
-    newGame:xy = { x : 134, y : 73};
-    highScores:xy = { x : 125, y : 106};
-
     arrow:Phaser.GameObjects.Image | undefined;
 
     upKey:Phaser.Input.Keyboard.Key | undefined;
@@ -27,42 +20,6 @@ export default class MainMenu extends Phaser.Scene
 		super('mainMenu');
 	}
 
-    async joinMainLobby(){
-
-        try {
-
-            GameManager.onlineRoom = await GameManager.client.joinOrCreate("mainLobby", {playerName: GameManager.playerName});
-            console.log("Join passed.", GameManager.onlineRoom);
-
-            GameManager.onlineRoom.onMessage('playerEnter', this.playerEnter.bind(this, this));
-            GameManager.onlineRoom.onMessage('updateOpponent', this.updateOpponent.bind(this, this));
-        
-        } catch (e) {
-            console.error("Join failed.", e);
-        }
-
-    }
-
-    updateOpponent(scene:this, message:any){
-
-        if(message.playerName == null) return;
-
-        GameManager.opponentName = message.playerName;
-        if(scene.menu){
-            scene.menu.getChildByID("playerTwo").innerHTML = GameManager.opponentName;
-        }
-    }
-
-    playerEnter(scene:this, message:any){
-
-        if(message.playerName == null) return;
-
-        GameManager.opponentName = message.playerName;
-        if(scene.menu){
-            scene.menu.getChildByID("playerTwo").innerHTML = GameManager.opponentName;
-        }
-    }
-
 	preload()
     {
         this.load.setBaseURL('assets');
@@ -71,11 +28,59 @@ export default class MainMenu extends Phaser.Scene
 
         this.cameras.main.backgroundColor = Colors.gameBackground;
         this.load.image('arrow', 'sprites/arrow.png');
+
+    }
+
+    async joinGameLobbyWithID(roomId:string){
+
+        try {
+
+            GameManager.onlineRoom = await GameManager.client.joinById(roomId, {playerName: GameManager.playerName});
+            
+            GameManager.onlineRoom.onMessage('updateOpponent', this.updateOpponent.bind(this, this));
+            GameManager.onlineRoom.send("getOpponent", {playerName: GameManager.playerName});
+
+            GameManager.connected = true;
+            console.log("Joined game lobby.", GameManager.onlineRoom);
+        
+        } catch (e) {
+            GameManager.connected = false;
+            console.error("Failed to join game lobby.", e);
+        }
+
+    }
+
+    async joinGameLobby(){
+
+        try {
+
+            GameManager.onlineRoom = await GameManager.client.joinOrCreate("gameLobby", {playerName: GameManager.playerName});
+            
+            GameManager.onlineRoom.onMessage('updateOpponent', this.updateOpponent.bind(this, this));
+            GameManager.onlineRoom.send("getOpponent", {playerName: GameManager.playerName});
+            
+            GameManager.connected = true;
+            console.log("Joined game lobby.", GameManager.onlineRoom);
+        
+        } catch (e) {
+            GameManager.connected = false;
+            console.error("Failed to join game lobby.", e);
+        }
+
     }
 
     create()
-    {
+    {        
+        if(GameManager.roomId == undefined) {
+            this.joinGameLobby();
+        } else {
+            this.joinGameLobbyWithID(GameManager.roomId as string);
+        }
+
+        GameManager.onlineRoom.send("getOpponent", {playerName: GameManager.playerName});
+            
         console.log('Main Menu booted with playerName = ' + GameManager.playerName);
+        console.log('Inside roomId: ' + GameManager.onlineRoom.id);
 
         this.menu = this.add.dom(this.cameras.main.centerX - 45, 20).createFromCache('menu');
         this.menu.getChildByID("playerOne").innerHTML = GameManager.playerName;
@@ -84,11 +89,34 @@ export default class MainMenu extends Phaser.Scene
             y:10,
             yoyo:true,
             loop:-1
-        })
+        });
 
-        GameManager.client = new Colyseus.Client("ws://localhost:2567");
-        this.joinMainLobby();
+        this.getOpponent();
 
+    }
+
+    getOpponent() {
+
+        this.time.delayedCall(1000, () => {
+            
+            GameManager.onlineRoom.send("getOpponent", {playerName: GameManager.playerName});
+            
+            if(GameManager.opponentName == undefined)
+            {
+                this.getOpponent();
+            }
+
+        }, [], this);
+
+    }
+
+    updateOpponent(scene:this, data:{opponentName:string}){
+
+        console.log("client got opponent: " + data.opponentName);
+        GameManager.opponentName = data.opponentName;
+        if(scene.menu){
+            scene.menu.getChildByID("playerTwo").innerHTML = GameManager.opponentName;
+        }
     }
 
     startNewGame() {

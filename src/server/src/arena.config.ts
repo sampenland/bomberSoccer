@@ -5,15 +5,18 @@ import { monitor } from "@colyseus/monitor";
  * Import your Room files
  */
 import { MainLobby } from "./rooms/MainLobby";
+import { GameLobby } from "./rooms/GameLobby";
 
 export default Arena({
-    getId: () => "Your Colyseus App",
+    getId: () => "Bomber Soccer",
 
     initializeGameServer: (gameServer) => {
         /**
          * Define your room handlers:
          */
         gameServer.define('mainLobby', MainLobby);
+        gameServer.define('gameLobby', GameLobby);
+
 
     },
 
@@ -22,7 +25,7 @@ export default Arena({
          * Bind your custom express routes here:
          */
         app.get("/", (req, res) => {
-            res.send("It's time to kick ass and chew bubblegum!");
+            res.send("Booted Bomber Soccer server!");
         });
 
         /**

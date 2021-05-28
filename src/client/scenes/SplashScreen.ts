@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 import FakeBomb from '../gameObjects/FakeBomb';
 import Colors from '../globals/Colors';
 import GameManager from '../globals/GameManager';
+import * as Colyseus from 'colyseus.js'
 
 export default class SplashScreen extends Phaser.Scene
 {
@@ -78,12 +79,46 @@ export default class SplashScreen extends Phaser.Scene
                 if(inputUsername != null && inputUsername != ""){
 
                     GameManager.playerName = inputUsername;
-                    this.scene.start('mainMenu');
+
+                    GameManager.onlineRoom.send("getGameLobby", {});
+                    GameManager.onlineRoom.onMessage("getGameLobby", (data) => {
+
+                        if(data.roomId == undefined)
+                        {
+                            // make a new room
+                            GameManager.roomId = undefined;
+                        }
+                        else
+                        {
+                            GameManager.roomId = data.roomId;
+                        }
+
+                        this.scene.start("mainMenu");
+
+                    });
                 }
 
             }
         });
+
+        GameManager.client = new Colyseus.Client("ws://localhost:2567");
+        this.joinMainLobby();
         
+    }
+
+    async joinMainLobby(){
+
+        try {
+
+            GameManager.onlineRoom = await GameManager.client.joinOrCreate("mainLobby", {});
+            GameManager.connected = true;
+            console.log("Joined servers main lobby.", GameManager.onlineRoom);
+        
+        } catch (e) {
+            GameManager.connected = false;
+            console.error("Failed to join main game lobby.", e);
+        }
+
     }
 
     playAnimation(player:Phaser.GameObjects.Sprite) {

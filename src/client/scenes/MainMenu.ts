@@ -54,7 +54,7 @@ export default class MainMenu extends Phaser.Scene
 
         try {
 
-            GameManager.onlineRoom = await GameManager.client.joinOrCreate("gameLobby", {playerName: GameManager.playerName});
+            GameManager.onlineRoom = await GameManager.client.create("gameLobby", {playerName: GameManager.playerName});
             
             GameManager.onlineRoom.onMessage('updateOpponent', this.updateOpponent.bind(this, this));
             GameManager.onlineRoom.send("getOpponent", {playerName: GameManager.playerName});

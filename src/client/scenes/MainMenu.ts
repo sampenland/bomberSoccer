@@ -57,6 +57,8 @@ export default class MainMenu extends Phaser.Scene
             GameManager.onlineRoom = await GameManager.client.create("gameLobby", {playerName: GameManager.playerName});
             
             GameManager.onlineRoom.onMessage('updateOpponent', this.updateOpponent.bind(this, this));
+            GameManager.onlineRoom.onMessage('gotoGameRoom', this.gotoGameRoom.bind(this, this));
+            GameManager.onlineRoom.onMessage('createGameRoom', this.createGameRoom.bind(this, this));
             GameManager.onlineRoom.send("getOpponent", {playerName: GameManager.playerName});
             
             GameManager.connected = true;
@@ -69,8 +71,27 @@ export default class MainMenu extends Phaser.Scene
 
     }
 
+    async createGameRoom(scene:this, data:any) {
+
+        let oldRoom = GameManager.onlineRoom;
+        GameManager.onlineRoom = await GameManager.client.create("gameRoom", {playerName: GameManager.playerName});
+        oldRoom.send("bringOtherPlayer", {roomId:GameManager.roomId});
+
+        scene.scene.start('game');
+
+    }
+
+    async gotoGameRoom(scene:this, data:any) {
+
+        GameManager.onlineRoom = await GameManager.client.joinById(data.roomId);
+        scene.scene.start('game');
+
+    }
+
     create()
     {        
+        GameManager.gameReady = false;
+        
         if(GameManager.roomId == undefined) {
             this.joinGameLobby();
         } else {
@@ -105,8 +126,19 @@ export default class MainMenu extends Phaser.Scene
             {
                 this.getOpponent();
             }
+            else
+            {
+                this.enterGame();
+            }
+
 
         }, [], this);
+
+    }
+
+    enterGame(){
+
+        this.scene.start('game');
 
     }
 

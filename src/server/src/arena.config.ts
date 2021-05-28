@@ -7,6 +7,7 @@ import { Server, RedisPresence } from "colyseus";
  */
 import { MainLobby } from "./rooms/MainLobby";
 import { GameLobby } from "./rooms/GameLobby";
+import { GameRoom } from "./rooms/GameRoom";
 
 export default Arena({
     getId: () => "Bomber Soccer",
@@ -18,6 +19,7 @@ export default Arena({
          */
         gameServer.define('mainLobby', MainLobby);
         gameServer.define('gameLobby', GameLobby);
+        gameServer.define('gameRoom', GameRoom);
         
     },
 

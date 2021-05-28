@@ -94,23 +94,6 @@ export default class SplashScreen extends Phaser.Scene
                     });
 
                     this.scene.start("mainMenu");
-
-                    // GameManager.onlineRoom.send("getGameLobby", {});
-                    // GameManager.onlineRoom.onMessage("getGameLobby", (data) => {
-
-                    //     if(data.roomId == undefined)
-                    //     {
-                    //         // make a new room
-                    //         GameManager.roomId = undefined;
-                    //     }
-                    //     else
-                    //     {
-                    //         GameManager.roomId = data.roomId;
-                    //     }
-
-                    //     this.scene.start("mainMenu");
-
-                    // });
                 }
 
             }

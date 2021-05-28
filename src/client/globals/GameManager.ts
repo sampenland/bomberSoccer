@@ -10,5 +10,6 @@ export default class GameManager {
     public static client:Client;
     public static onlineRoom:Colyseus.Room;
     public static connected:Boolean;
+    public static gameReady:Boolean = false;
 
 }

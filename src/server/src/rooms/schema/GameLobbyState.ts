@@ -1,4 +1,4 @@
-import { Schema, MapSchema, type } from "@colyseus/schema";
+import { Schema, type } from "@colyseus/schema";
 import { Player } from "../../classes/Player"
 
 export class GameLobbyState extends Schema {

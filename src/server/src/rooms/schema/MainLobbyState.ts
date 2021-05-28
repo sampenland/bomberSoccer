@@ -3,7 +3,7 @@ import { InGameRooms } from "../../classes/InGameRooms";
 
 export class MainLobbyState extends Schema {
 
-  @type([InGameRooms])
-  inGameRooms = new Array<InGameRooms>();
+    @type([InGameRooms])
+    inGameRooms:Array<InGameRooms>;
 
 }

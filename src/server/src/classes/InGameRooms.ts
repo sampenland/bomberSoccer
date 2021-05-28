@@ -21,6 +21,10 @@ export class InGameRooms extends Schema {
         this.playerCount++;
     }
 
+    removePlayer(){
+        this.playerCount--;
+    }
+
     notFull(){
         return this.playerCount < 2;
     }

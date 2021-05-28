@@ -1,9 +1,9 @@
 import { Room, Client } from "colyseus";
+import { InGameRooms } from "../classes/InGameRooms";
 import { MainLobbyState } from "./schema/MainLobbyState";
-import { Player } from "../classes/Player"
 
 export class MainLobby extends Room<MainLobbyState> {
-
+  
   onCreate (options: any) {
 
     this.setState(new MainLobbyState());

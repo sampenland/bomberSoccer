@@ -13,7 +13,7 @@ export class InGameRooms extends Schema {
         super();
         this.roomId = roomId;
 
-        this.playerCount = 0;
+        this.playerCount = 1;
 
     }
 

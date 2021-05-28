@@ -8,17 +8,24 @@ export class MainLobby extends Room<MainLobbyState> {
 
     this.setState(new MainLobbyState());
 
-    this.onMessage("getGameLobby", (client:Client, message:any) => {
+    this.onMessage("getGameLobby", async (client:Client, message:any) => {
 
-      this.state.inGameRooms.forEach((room) =>{
+      if(this.presence.get("inGameRooms") == undefined){
+        let initRooms = new Array<InGameRooms>();
+        this.presence.sadd("inGameRooms", {rooms:initRooms});
+      }
+      
+      let inGameRooms = await this.presence.smembers("inGameRooms");
 
+      for(let room of inGameRooms){
+        
         if(room.notFull())
         {
           client.send("getGameLobby", {roomId: room.roomId});
           return;
         }
 
-      });
+      }
 
       client.send("getGameLobby", {roomId: undefined, rooms:this.state.inGameRooms.length});
 

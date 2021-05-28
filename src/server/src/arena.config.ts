@@ -1,5 +1,6 @@
 import Arena from "@colyseus/arena";
 import { monitor } from "@colyseus/monitor";
+import { Server, RedisPresence } from "colyseus";
 
 /**
  * Import your Room files
@@ -10,14 +11,14 @@ import { GameLobby } from "./rooms/GameLobby";
 export default Arena({
     getId: () => "Bomber Soccer",
 
-    initializeGameServer: (gameServer) => {
+    initializeGameServer: (gameServer:Server) => {
+        
         /**
          * Define your room handlers:
          */
         gameServer.define('mainLobby', MainLobby);
         gameServer.define('gameLobby', GameLobby);
-
-
+        
     },
 
     initializeExpress: (app) => {

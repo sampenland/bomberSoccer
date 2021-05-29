@@ -22,4 +22,12 @@ export class World extends Schema {
         this.height = height;
 
     }
+
+    centerX(){
+        return this.width/2;
+    }
+
+    centerY(){
+        return this.height/2;
+    }
 }

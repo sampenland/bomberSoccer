@@ -1,4 +1,5 @@
 import { Schema, type } from "@colyseus/schema";
+import { World } from "./World";
 
 export class Player extends Schema {
     
@@ -17,11 +18,33 @@ export class Player extends Schema {
     @type("number")
     angle:number;
 
-    constructor(name:string, id:string) {
+    @type("number")
+    playerNumber:number;
+
+    @type(World)
+    gameWorld:World;
+
+    constructor(name:string, id:string, worldR:World) {
 
         super();
         this.name = name;
         this.id = id;
+        this.gameWorld = worldR;
+
+    }
+
+    setPlayerNumber(num:number) {
+        
+        this.playerNumber = num;
+
+        if(this.playerNumber == 1) {
+            this.x = this.gameWorld.centerX();
+            this.y = this.gameWorld.height - 30;
+        }
+        else if(this.playerNumber == 2) {
+            this.x = this.gameWorld.centerX();
+            this.y = 30;
+        }
 
     }
 

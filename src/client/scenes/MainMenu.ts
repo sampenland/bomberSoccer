@@ -82,12 +82,7 @@ export default class MainMenu extends Phaser.Scene
             {
                 GameManager.onlineRoom = await GameManager.client.create("gameRoom", {playerName: GameManager.playerName});
                 console.log(GameManager.playerName + " creating the game room.");
-
-                GameManager.onlineRoom.onMessage("startGame", (data:{playerOneId:any, playerTwoId:any}) => {
-                    GameManager.opponentId = data.playerTwoId;
-                    scene.scene.start("game");
-                });
-
+                scene.scene.start("game");
                 oldRoom.send("bringOtherPlayer", {roomId:GameManager.onlineRoom.id, roomName:GameManager.onlineRoom.name});
 
             }
@@ -107,11 +102,7 @@ export default class MainMenu extends Phaser.Scene
         try
         {
             GameManager.onlineRoom = await GameManager.client.joinById(data.roomId, {playerName:GameManager.playerName});
-
-            GameManager.onlineRoom.onMessage("startGame", (data:{playerOneId:any, playerTwoId:any}) => {
-                GameManager.opponentId = data.playerTwoId;
-                scene.scene.start("game");
-            });
+            scene.scene.start("game");
         }
         catch(e)
         {

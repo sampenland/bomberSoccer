@@ -6,6 +6,7 @@ import { IGameRoomState, IPlayer } from '../interfaces/IClientServer';
 
 export default class Game extends Phaser.Scene {
 
+    paused:boolean = true;
     public static player:Player;
     public static opponent:Player;
 
@@ -27,31 +28,57 @@ export default class Game extends Phaser.Scene {
 
     }
 
+    update(){
+
+        if(this.paused) return;
+
+        GameManager.onlineRoom.send("requestSync", {});
+
+    }
+
     create() {
 
-        this.scene.pause();
-
         GameManager.onlineRoom.onMessage("startGame", () => {
-            console.log("Both players here.");
-            this.scene.resume();
+            console.log("Both players here. Starting game.");
+            this.paused = false;
         });
+
+        GameManager.onlineRoom.onMessage("sync", this.sync.bind(this, this));
+
+        this.requestStart();
 
         console.log("Game booted.");
         this.createLevel();
 
     }
 
-    sync(state:IGameRoomState){
+    requestStart() {
+
+        this.time.delayedCall(1000, () => {
+            
+            GameManager.onlineRoom.send("requestStart", {});
+            
+            if(this.paused == true)
+            {
+                this.requestStart();
+            }
+
+
+        }, [], this);
+
+    }
+
+    sync(scene:this, state:IGameRoomState){
 
         console.log('State update');
         state.players.forEach((player) => {
 
             if(player.id == GameManager.onlineRoom.sessionId) {
-                this.thisPlayerUpdate(player);
+                scene.thisPlayerUpdate(player);
             }
 
             if(player.id == GameManager.opponentId){
-                this.otherPlayerUpdate(player);
+                scene.otherPlayerUpdate(player);
             }
 
         });
@@ -80,6 +107,8 @@ export default class Game extends Phaser.Scene {
 
         Game.player = new Player({x:-100, y:-100, scene:this});
         Game.opponent = new Player({x:-100, y:-100, scene:this});
+
+        this.requestStart();
 
     }
 

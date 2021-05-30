@@ -8,8 +8,16 @@ export class GameRoom extends Room<GameRoomState> {
 
     this.setState(new GameRoomState());
 
+    this.onMessage("requestStart", (client:Client, message:any) => {
+
+      if(this.clients.length == 2) {
+        this.broadcast("startGame", {playerOneId:this.state.players[0].id, playerTwoId:this.state.players[1].id});
+      }
+
+    });
+
     this.onMessage("requestSync", (client:Client) =>{
-      this.broadcast("stateUpdate", this.state);
+      this.broadcast("sync", this.state);
     });
 
   }
@@ -25,12 +33,6 @@ export class GameRoom extends Room<GameRoomState> {
     let joiningPlayer = new Player(options.playerName, client.sessionId, this.state.gameWorld);
     this.state.players.push(joiningPlayer);
     this.state.players[this.state.players.length - 1].setPlayerNumber(this.state.players.length);
-
-    if(this.clients.length == 2) {
-
-      this.broadcast("startGame", {playerOneId:this.state.players[0].id, playerTwoId:this.state.players[1].id});
-
-    }
 
   }
 

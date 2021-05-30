@@ -13,19 +13,23 @@ export class GameLobby extends Room<GameLobbyState> {
       if(this.state.players == undefined) return;
 
       let otherName = this.state.players[0].name;
+      let otherId = this.state.players[0].id;
+      let otherNum = this.state.players[0].playerNumber;
 
       if(otherName == message.playerName) {
         if(this.state.players.length < 2) return;
         otherName = this.state.players[1].name;
+        otherId = this.state.players[1].id;
+        otherNum = this.state.players[1].playerNumber;
       }
 
-      client.send("updateOpponent", {opponentName:otherName});
+      client.send("updateOpponent", {opponentName:otherName, opponentId:otherId, opponentNum:otherNum});
 
     });
 
     this.onMessage("bringOtherPlayer", (client:Client, message:any) => {
 
-      this.broadcast("gotoGameRoom", {roomId:message.roomId}, {except: client});
+      this.broadcast("gotoGameRoom", {roomId:message.roomId, roomName:message.roomName}, {except: client});
 
     });
 
@@ -33,9 +37,10 @@ export class GameLobby extends Room<GameLobbyState> {
 
   onJoin (client: Client, options: any) {
     
-    console.log(options.playerName + " [" + client.sessionId + "]", " joined A Main Lobby.");
+    console.log(options.playerName + " [" + client.sessionId + "]", " joined a Game Lobby.");
     this.state.players.push(new Player(options.playerName, client.sessionId));
 
+    console.log('Clients in Game lobby: ' + this.clients.length);
     if(this.clients.length == 2) {
       client.send("createGameRoom", {});
     }

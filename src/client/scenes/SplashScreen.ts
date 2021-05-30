@@ -79,14 +79,12 @@ export default class SplashScreen extends Phaser.Scene
                 if(inputUsername != null && inputUsername != ""){
 
                     GameManager.playerName = inputUsername;
-                    GameManager.roomId = undefined;
                     GameManager.client.getAvailableRooms("gameLobby").then(rooms =>
                     {
                         for(let room of rooms){
 
                             if(room.clients < 2){
-                                console.log(room.roomId, room.clients);
-                                GameManager.roomId = room.roomId;
+                                GameManager.tempNextRoomId = room.roomId;
                                 break;
                             }
 

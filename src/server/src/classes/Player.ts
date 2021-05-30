@@ -24,7 +24,7 @@ export class Player extends Schema {
     @type(World)
     gameWorld:World;
 
-    constructor(name:string, id:string, worldR:World) {
+    constructor(name:string, id:string, worldR?:World|undefined) {
 
         super();
         this.name = name;

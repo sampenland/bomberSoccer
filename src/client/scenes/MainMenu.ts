@@ -1,4 +1,4 @@
-import Phaser from 'phaser'
+import Phaser, { Game } from 'phaser'
 import Colors from '../globals/Colors';
 import GameManager from '../globals/GameManager';
 
@@ -36,13 +36,14 @@ export default class MainMenu extends Phaser.Scene
         try {
 
             GameManager.onlineRoom = await GameManager.client.joinById(roomId, {playerName: GameManager.playerName});
-            
             GameManager.onlineRoom.onMessage('updateOpponent', this.updateOpponent.bind(this, this));
-            GameManager.onlineRoom.send("getOpponent", {playerName: GameManager.playerName});
+            GameManager.onlineRoom.onMessage('createGameRoom', this.createGameRoom.bind(this, this));
 
             GameManager.connected = true;
             console.log("Joined game lobby.", GameManager.onlineRoom);
         
+            this.getOpponent();
+
         } catch (e) {
             GameManager.connected = false;
             console.error("Failed to join game lobby.", e);
@@ -59,11 +60,12 @@ export default class MainMenu extends Phaser.Scene
             GameManager.onlineRoom.onMessage('updateOpponent', this.updateOpponent.bind(this, this));
             GameManager.onlineRoom.onMessage('gotoGameRoom', this.gotoGameRoom.bind(this, this));
             GameManager.onlineRoom.onMessage('createGameRoom', this.createGameRoom.bind(this, this));
-            GameManager.onlineRoom.send("getOpponent", {playerName: GameManager.playerName});
             
             GameManager.connected = true;
             console.log("Joined game lobby.", GameManager.onlineRoom);
         
+            this.getOpponent();
+
         } catch (e) {
             GameManager.connected = false;
             console.error("Failed to join game lobby.", e);
@@ -71,20 +73,51 @@ export default class MainMenu extends Phaser.Scene
 
     }
 
-    async createGameRoom(scene:this, data:any) {
+    createGameRoom(scene:this, data:any) {
 
-        let oldRoom = GameManager.onlineRoom;
-        GameManager.onlineRoom = await GameManager.client.create("gameRoom", {playerName: GameManager.playerName});
-        oldRoom.send("bringOtherPlayer", {roomId:GameManager.roomId});
+        this.time.delayedCall(3000, async () => {
 
-        scene.scene.start('game');
+            let oldRoom = GameManager.onlineRoom;
+            try
+            {
+                GameManager.onlineRoom = await GameManager.client.create("gameRoom", {playerName: GameManager.playerName});
+                console.log(GameManager.playerName + " creating the game room.");
+
+                GameManager.onlineRoom.onMessage("startGame", (data:{playerOneId:any, playerTwoId:any}) => {
+                    GameManager.opponentId = data.playerTwoId;
+                    scene.scene.start("game");
+                });
+
+                oldRoom.send("bringOtherPlayer", {roomId:GameManager.onlineRoom.id, roomName:GameManager.onlineRoom.name});
+
+            }
+            catch(e)
+            {
+                console.log("Failed to join created Game Room");
+            }
+
+        })
 
     }
 
     async gotoGameRoom(scene:this, data:any) {
 
-        GameManager.onlineRoom = await GameManager.client.joinById(data.roomId);
-        scene.scene.start('game');
+        console.log(GameManager.playerName + " being pulled into game room: [" + data.roomName + "]" + data.roomId);
+        
+        try
+        {
+            GameManager.onlineRoom = await GameManager.client.joinById(data.roomId, {playerName:GameManager.playerName});
+
+            GameManager.onlineRoom.onMessage("startGame", (data:{playerOneId:any, playerTwoId:any}) => {
+                GameManager.opponentId = data.playerTwoId;
+                scene.scene.start("game");
+            });
+        }
+        catch(e)
+        {
+            console.log('Failed to go to game room');
+        }
+        
 
     }
 
@@ -92,13 +125,11 @@ export default class MainMenu extends Phaser.Scene
     {        
         GameManager.gameReady = false;
         
-        if(GameManager.roomId == undefined) {
+        if(GameManager.tempNextRoomId == undefined) {
             this.joinGameLobby();
         } else {
-            this.joinGameLobbyWithID(GameManager.roomId as string);
+            this.joinGameLobbyWithID(GameManager.tempNextRoomId as string);
         }
-
-        GameManager.onlineRoom.send("getOpponent", {playerName: GameManager.playerName});
             
         console.log('Main Menu booted with playerName = ' + GameManager.playerName);
         console.log('Inside roomId: ' + GameManager.onlineRoom.id);
@@ -112,23 +143,18 @@ export default class MainMenu extends Phaser.Scene
             loop:-1
         });
 
-        this.getOpponent();
-
     }
 
     getOpponent() {
 
         this.time.delayedCall(1000, () => {
             
+            console.log(GameManager.onlineRoom.name);
             GameManager.onlineRoom.send("getOpponent", {playerName: GameManager.playerName});
             
             if(GameManager.opponentName == undefined)
             {
                 this.getOpponent();
-            }
-            else
-            {
-                this.enterGame();
             }
 
 
@@ -136,29 +162,23 @@ export default class MainMenu extends Phaser.Scene
 
     }
 
-    enterGame(){
+    updateOpponent(scene:this, data:{opponentName:string, opponentId:string, opponentNum:number}){
 
-        this.scene.start('game');
-
-    }
-
-    updateOpponent(scene:this, data:{opponentName:string}){
-
-        console.log("client got opponent: " + data.opponentName);
         GameManager.opponentName = data.opponentName;
+        GameManager.opponentId = data.opponentId;
+        GameManager.opponentNum = data.opponentNum;
+
+        if(GameManager.opponentNum == 1) {
+            GameManager.playerNum = 2;
+        }
+        else
+        {
+            GameManager.playerNum = 1;
+        }
+
         if(scene.menu){
             scene.menu.getChildByID("playerTwo").innerHTML = GameManager.opponentName;
         }
-    }
-
-    startNewGame() {
-        this.scene.start('game');
-    }
-
-    update(){
-
-            
-
     }
 
 }

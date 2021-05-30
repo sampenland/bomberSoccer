@@ -2,10 +2,12 @@ import Phaser from 'phaser'
 import Player from '../gameObjects/Player';
 import Colors from '../globals/Colors'
 import GameManager from '../globals/GameManager';
+import { IGameRoomState, IPlayer } from '../interfaces/IClientServer';
 
 export default class Game extends Phaser.Scene {
 
     public static player:Player;
+    public static opponent:Player;
 
     constructor() {
 
@@ -39,15 +41,45 @@ export default class Game extends Phaser.Scene {
 
     }
 
-    update() {
+    sync(state:IGameRoomState){
 
+        console.log('State update');
+        state.players.forEach((player) => {
 
+            if(player.id == GameManager.onlineRoom.sessionId) {
+                this.thisPlayerUpdate(player);
+            }
+
+            if(player.id == GameManager.opponentId){
+                this.otherPlayerUpdate(player);
+            }
+
+        });
+
+    }
+
+    thisPlayerUpdate(player:IPlayer) {
+
+        Game.player.x = player.x;
+        Game.player.y = player.y;
+        Game.player.angle = player.angle;
+
+    }
+
+    otherPlayerUpdate(player:IPlayer) {
+
+        Game.opponent.x = player.x;
+        Game.opponent.y = player.y;
+        Game.opponent.angle = player.angle;
 
     }
 
     createLevel() {
 
         console.log("Creating Level");
+
+        Game.player = new Player({x:-100, y:-100, scene:this});
+        Game.opponent = new Player({x:-100, y:-100, scene:this});
 
     }
 

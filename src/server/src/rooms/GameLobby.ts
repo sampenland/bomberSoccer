@@ -14,16 +14,14 @@ export class GameLobby extends Room<GameLobbyState> {
 
       let otherName = this.state.players[0].name;
       let otherId = this.state.players[0].id;
-      let otherNum = this.state.players[0].playerNumber;
 
       if(otherName == message.playerName) {
         if(this.state.players.length < 2) return;
         otherName = this.state.players[1].name;
         otherId = this.state.players[1].id;
-        otherNum = this.state.players[1].playerNumber;
       }
 
-      client.send("updateOpponent", {opponentName:otherName, opponentId:otherId, opponentNum:otherNum});
+      client.send("updateOpponent", {opponentName:otherName, opponentId:otherId});
 
     });
 

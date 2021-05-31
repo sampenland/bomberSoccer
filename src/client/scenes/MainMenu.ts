@@ -153,19 +153,10 @@ export default class MainMenu extends Phaser.Scene
 
     }
 
-    updateOpponent(scene:this, data:{opponentName:string, opponentId:string, opponentNum:number}){
+    updateOpponent(scene:this, data:{opponentName:string, opponentId:string}){
 
         GameManager.opponentName = data.opponentName;
         GameManager.opponentId = data.opponentId;
-        GameManager.opponentNum = data.opponentNum;
-
-        if(GameManager.opponentNum == 1) {
-            GameManager.playerNum = 2;
-        }
-        else
-        {
-            GameManager.playerNum = 1;
-        }
 
         if(scene.menu){
             scene.menu.getChildByID("playerTwo").innerHTML = GameManager.opponentName;

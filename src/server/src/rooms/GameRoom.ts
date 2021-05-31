@@ -11,13 +11,43 @@ export class GameRoom extends Room<GameRoomState> {
     this.onMessage("requestStart", (client:Client, message:any) => {
 
       if(this.clients.length == 2) {
-        this.broadcast("startGame", {playerOneId:this.state.players[0].id, playerTwoId:this.state.players[1].id});
+
+        this.broadcast("startGame", {
+          playerOne: this.state.players[0],
+          playerTwo: this.state.players[1],
+        });
       }
 
     });
 
-    this.onMessage("requestSync", (client:Client) =>{
-      this.broadcast("sync", this.state);
+    this.onMessage("controls", (client:Client, message:{up:boolean, down:boolean, left:boolean, right:boolean}) => {
+
+      this.state.players.forEach((player) => {
+
+        if(player.id == client.sessionId) {
+
+          let moveSpeed = 2;
+
+          if(message.up) {
+            player.moveUp(moveSpeed);
+          }
+
+          if(message.down) {
+            player.moveDown(moveSpeed);
+          }
+
+          if(message.left) {
+            player.moveLeft(moveSpeed);
+          }
+
+          if(message.right) {
+            player.moveRight(moveSpeed);
+          }
+
+        }
+
+      });
+
     });
 
   }

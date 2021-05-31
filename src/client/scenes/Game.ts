@@ -32,20 +32,40 @@ export default class Game extends Phaser.Scene {
 
         if(this.paused) return;
 
-        GameManager.onlineRoom.send("requestSync", {});
+        this.controls();
 
+    }
+
+    controls(){
+
+        let left = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+        let right = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+        let up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+        let down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+
+        GameManager.onlineRoom.send("controls", {up:up.isDown, down:down.isDown, left:left.isDown, right:right.isDown});
     }
 
     create() {
 
-        GameManager.onlineRoom.onMessage("startGame", () => {
+        GameManager.onlineRoom.onMessage("startGame", (data:{playerOne:IPlayer, playerTwo:IPlayer}) => {
+            
             console.log("Both players here. Starting game.");
             this.paused = false;
+            
+            if(data.playerOne.id == GameManager.onlineRoom.sessionId) {
+                this.thisPlayerUpdate(data.playerOne);
+                this.otherPlayerUpdate(data.playerTwo);
+            }
+            else 
+            {
+                this.thisPlayerUpdate(data.playerTwo);
+                this.otherPlayerUpdate(data.playerOne);
+            }
+
         });
 
-        GameManager.onlineRoom.onMessage("sync", this.sync.bind(this, this));
-
-        this.requestStart();
+        GameManager.onlineRoom.onStateChange(this.sync.bind(this, this));
 
         console.log("Game booted.");
         this.createLevel();
@@ -87,17 +107,17 @@ export default class Game extends Phaser.Scene {
 
     thisPlayerUpdate(player:IPlayer) {
 
-        Game.player.x = player.x;
-        Game.player.y = player.y;
-        Game.player.angle = player.angle;
+        //Game.player.angle = player.angle;
+        Game.player.setPosition(player.x, player.y);
+        console.log("my transform: " + Game.player.x + "," + Game.player.y);
 
     }
 
     otherPlayerUpdate(player:IPlayer) {
 
-        Game.opponent.x = player.x;
-        Game.opponent.y = player.y;
-        Game.opponent.angle = player.angle;
+        //Game.opponent.angle = player.angle;
+        Game.opponent.setPosition(player.x, player.y);
+        console.log("other transform: " + Game.opponent.x + "," + Game.opponent.y);
 
     }
 
@@ -105,8 +125,8 @@ export default class Game extends Phaser.Scene {
 
         console.log("Creating Level");
 
-        Game.player = new Player({x:-100, y:-100, scene:this});
-        Game.opponent = new Player({x:-100, y:-100, scene:this});
+        Game.player = new Player(this);
+        Game.opponent = new Player(this);
 
         this.requestStart();
 

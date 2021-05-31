@@ -1,15 +1,13 @@
 import Phaser from 'phaser'
 
-interface playerConfig {scene:Phaser.Scene, x:number, y:number};
-
 export default class Player extends Phaser.GameObjects.Sprite
 {
 
     playerNum:number = -1;
 
-    constructor(config:playerConfig){
+    constructor(scene:Phaser.Scene){
 
-        super(config.scene, config.x, config.y, 'player');
+        super(scene, -1, -1, 'player');
         this.scene.add.existing(this);
 
     }

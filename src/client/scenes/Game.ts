@@ -48,28 +48,28 @@ export default class Game extends Phaser.Scene {
 
     create() {
 
-        GameManager.onlineRoom.onMessage("startGame", (data:{playerOne:IPlayer, playerTwo:IPlayer}) => {
-            
-            console.log("Both players here. Starting game.");
-            this.paused = false;
-            
-            if(data.playerOne.id == GameManager.onlineRoom.sessionId) {
-                this.thisPlayerUpdate(data.playerOne);
-                this.otherPlayerUpdate(data.playerTwo);
-            }
-            else 
-            {
-                this.thisPlayerUpdate(data.playerTwo);
-                this.otherPlayerUpdate(data.playerOne);
-            }
-
-        });
-
+        GameManager.onlineRoom.onMessage("startGame", this.startGame.bind(this, this));
         GameManager.onlineRoom.onStateChange(this.sync.bind(this, this));
 
         console.log("Game booted.");
         this.createLevel();
 
+    }
+
+    startGame(scene:this, data:{playerOne:IPlayer, playerTwo:IPlayer}) {
+
+        console.log("Both players here. Starting game.");
+        scene.paused = false;
+        
+        if(data.playerOne.id == GameManager.onlineRoom.sessionId) {
+            scene.thisPlayerUpdate(data.playerOne);
+            scene.otherPlayerUpdate(data.playerTwo);
+        }
+        else 
+        {
+            scene.thisPlayerUpdate(data.playerTwo);
+            scene.otherPlayerUpdate(data.playerOne);
+        }
     }
 
     requestStart() {

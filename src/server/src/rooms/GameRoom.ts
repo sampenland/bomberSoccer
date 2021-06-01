@@ -7,6 +7,7 @@ export class GameRoom extends Room<GameRoomState> {
   onCreate (options: any) {
 
     this.setState(new GameRoomState());
+    console.log("Created state.");
 
     this.onMessage("requestStart", (client:Client, message:any) => {
 

@@ -1,3 +1,8 @@
+export interface IBombDrop {
+    x:number;
+    y:number;
+    explodeTime:number;
+}
 
 export interface IWorld {
 

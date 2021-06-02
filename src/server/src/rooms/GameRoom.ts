@@ -1,4 +1,5 @@
 import { Room, Client } from "colyseus";
+import { Dispatcher } from "@colyseus/command";
 import { Player } from "../classes/Player";
 import { GameRoomState } from "./schema/GameRoomState";
 
@@ -21,7 +22,7 @@ export class GameRoom extends Room<GameRoomState> {
 
     });
 
-    this.onMessage("controls", (client:Client, message:{up:boolean, down:boolean, left:boolean, right:boolean}) => {
+    this.onMessage("controls", (client:Client, message:{up:boolean, down:boolean, left:boolean, right:boolean, space:boolean}) => {
 
       this.state.players.forEach((player) => {
 
@@ -45,6 +46,10 @@ export class GameRoom extends Room<GameRoomState> {
             player.moveRight(moveSpeed);
           }
 
+          if(message.space) {
+            player.dropBomb(this);
+          }
+
         }
 
       });
@@ -61,9 +66,10 @@ export class GameRoom extends Room<GameRoomState> {
       this.state.gameWorld.setSize(360, 180);
     }
 
+    console.log(client.sessionId);
     let joiningPlayer = new Player(options.playerName, client.sessionId, this.state.gameWorld);
     this.state.players.push(joiningPlayer);
-    this.state.players[this.state.players.length - 1].setPlayerNumber(this.state.players.length);
+    this.state.players[this.state.players.length - 1].positionPlayers(this.state.players.length);
 
   }
 

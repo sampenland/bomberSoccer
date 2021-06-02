@@ -1,8 +1,9 @@
 import Phaser from 'phaser'
 import Player from '../gameObjects/Player';
+import RealBomb from '../gameObjects/RealBomb';
 import Colors from '../globals/Colors'
 import GameManager from '../globals/GameManager';
-import { IGameRoomState, IPlayer } from '../interfaces/IClientServer';
+import { IBombDrop, IGameRoomState, IPlayer } from '../interfaces/IClientServer';
 
 export default class Game extends Phaser.Scene {
 
@@ -43,13 +44,16 @@ export default class Game extends Phaser.Scene {
         let up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
         let down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
 
-        GameManager.onlineRoom.send("controls", {up:up.isDown, down:down.isDown, left:left.isDown, right:right.isDown});
+        let space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+        GameManager.onlineRoom.send("controls", {up:up.isDown, down:down.isDown, left:left.isDown, right:right.isDown, space:space.isDown});
     }
 
     create() {
 
         GameManager.onlineRoom.onMessage("startGame", this.startGame.bind(this, this));
         GameManager.onlineRoom.onStateChange(this.sync.bind(this, this));
+        GameManager.onlineRoom.onMessage("bombDrop", this.createBomb.bind(this, this));
 
         console.log("Game booted.");
         this.createLevel();
@@ -64,11 +68,13 @@ export default class Game extends Phaser.Scene {
         if(data.playerOne.id == GameManager.onlineRoom.sessionId) {
             scene.thisPlayerUpdate(data.playerOne);
             scene.otherPlayerUpdate(data.playerTwo);
+            GameManager.opponentId = data.playerTwo.id;
         }
         else 
         {
             scene.thisPlayerUpdate(data.playerTwo);
             scene.otherPlayerUpdate(data.playerOne);
+            GameManager.opponentId = data.playerOne.id;
         }
     }
 
@@ -90,13 +96,13 @@ export default class Game extends Phaser.Scene {
 
     sync(scene:this, state:IGameRoomState){
 
-        console.log('State update');
         state.players.forEach((player) => {
 
             if(player.id == GameManager.onlineRoom.sessionId) {
                 scene.thisPlayerUpdate(player);
             }
 
+            console.log(player.id, GameManager.opponentId);
             if(player.id == GameManager.opponentId){
                 scene.otherPlayerUpdate(player);
             }
@@ -109,7 +115,6 @@ export default class Game extends Phaser.Scene {
 
         //Game.player.angle = player.angle;
         Game.player.setPosition(player.x, player.y);
-        console.log("my transform: " + Game.player.x + "," + Game.player.y);
 
     }
 
@@ -117,7 +122,12 @@ export default class Game extends Phaser.Scene {
 
         //Game.opponent.angle = player.angle;
         Game.opponent.setPosition(player.x, player.y);
-        console.log("other transform: " + Game.opponent.x + "," + Game.opponent.y);
+
+    }
+
+    createBomb(scene:this, data:IBombDrop){
+
+        let newBomb = new RealBomb(this, data.x, data.y, data.explodeTime);
 
     }
 

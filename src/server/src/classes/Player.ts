@@ -1,4 +1,6 @@
 import { Schema, type } from "@colyseus/schema";
+import { Room } from "colyseus";
+import { GameRoomState } from "../rooms/schema/GameRoomState";
 import { World } from "./World";
 
 export class Player extends Schema {
@@ -30,7 +32,7 @@ export class Player extends Schema {
 
     }
 
-    setPlayerNumber(num:number) {
+    positionPlayers(num:number) {
         
         if(num == 1) {
             this.x = this.gameWorld.centerX();
@@ -72,5 +74,13 @@ export class Player extends Schema {
 
     moveLeft(speed:number) {
         this.x -= speed;
+    }
+
+    dropBomb(room:Room<GameRoomState>) {
+        room.broadcast("bombDrop", {
+            x: this.x,
+            y: this.y,
+            explodeTime: 2300,
+        });
     }
 }

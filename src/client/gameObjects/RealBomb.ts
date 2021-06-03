@@ -1,9 +1,18 @@
+import GameManager from "../globals/GameManager";
+import Game from "../scenes/Game";
+import Player from "./Player";
 
 export default class RealBomb extends Phaser.GameObjects.Sprite {
 
-    constructor(scene:Phaser.Scene, x:number, y:number, explodeTime:number)
+    id:number;
+    playerId:string;
+
+    constructor(scene:Phaser.Scene, x:number, y:number, id:number, playerId:string)
     {
         super(scene, x, y, 'bomb');
+
+        this.id = id;
+        this.playerId = playerId;
 
         this.anims.create({
             key: 'bombBurning',
@@ -22,13 +31,16 @@ export default class RealBomb extends Phaser.GameObjects.Sprite {
         this.anims.play('bombBurning');
         scene.add.existing(this);
 
-        scene.time.delayedCall(explodeTime, this.explode, [], this);
-
     }
 
     explode() {
 
         this.anims.play('bombExplode');
+        
+        if(Game.player.id == this.playerId) {
+            GameManager.onlineRoom.send("removeBomb", {playerId:this.playerId, bombId:this.id});
+        }
+
         this.on('animationcomplete', this.kill, this);
 
     }

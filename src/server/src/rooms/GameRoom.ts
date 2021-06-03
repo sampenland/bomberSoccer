@@ -1,5 +1,4 @@
 import { Room, Client } from "colyseus";
-import { Dispatcher } from "@colyseus/command";
 import { Player } from "../classes/Player";
 import { GameRoomState } from "./schema/GameRoomState";
 
@@ -19,6 +18,20 @@ export class GameRoom extends Room<GameRoomState> {
           playerTwo: this.state.players[1],
         });
       }
+
+    });
+
+    this.onMessage("removeBomb", (client:Client, message:{playerId:string, bombId:number}) => {
+
+      this.state.players.forEach((player) => {
+
+        if(player.id == message.playerId) {
+
+          player.removeBomb(message.bombId);
+
+        }
+
+      });
 
     });
 

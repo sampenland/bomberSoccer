@@ -23,12 +23,15 @@ export class Player extends Schema {
     @type(World)
     gameWorld:World;
 
+    placedBombs:Array<number>;
+
     constructor(name:string, id:string, worldR?:World|undefined) {
 
         super();
         this.name = name;
         this.id = id;
         this.gameWorld = worldR;
+        this.placedBombs = new Array<number>();
 
     }
 
@@ -76,11 +79,41 @@ export class Player extends Schema {
         this.x -= speed;
     }
 
-    dropBomb(room:Room<GameRoomState>) {
-        room.broadcast("bombDrop", {
-            x: this.x,
-            y: this.y,
-            explodeTime: 2300,
-        });
+    removeBomb(id:number) {
+        console.log("remove bomb: " + id);
+        this.placedBombs.splice(this.placedBombs.indexOf(id), 1);
     }
+
+    dropBomb(room:Room<GameRoomState>) {
+        
+        let hasId = false;
+        let id = -1;
+        let cnt = 0;
+        while(hasId == false){
+            if(!this.placedBombs.includes(cnt)){
+                id = cnt;
+                hasId = true;
+                break;
+            }
+            cnt++;
+        }
+
+        if(id == -1) return;
+
+        this.placedBombs.push(id);
+        console.log("Drop bomb: " + id);
+        room.broadcast("bombDrop", {
+            player:this,
+            bombId: id,
+        });
+
+        let explodeTime = 2300;
+        setTimeout(() =>{
+
+            room.broadcast("explodeBomb", {bombId:id});
+
+        }, explodeTime);
+
+    }
+
 }

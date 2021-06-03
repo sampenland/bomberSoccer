@@ -11,9 +11,14 @@ export default class Game extends Phaser.Scene {
     public static player:Player;
     public static opponent:Player;
 
+    bombs:Map<number, RealBomb>;
+
+    spaceDown:boolean = false;
+
     constructor() {
 
         super('game');
+        this.bombs = new Map<number, RealBomb>();
 
     }
 
@@ -45,8 +50,10 @@ export default class Game extends Phaser.Scene {
         let down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
 
         let space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        let spacePressed = space.isDown && !this.spaceDown;
 
-        GameManager.onlineRoom.send("controls", {up:up.isDown, down:down.isDown, left:left.isDown, right:right.isDown, space:space.isDown});
+        GameManager.onlineRoom.send("controls", {up:up.isDown, down:down.isDown, left:left.isDown, right:right.isDown, space:spacePressed});
+        this.spaceDown = space.isDown;
     }
 
     create() {
@@ -54,6 +61,7 @@ export default class Game extends Phaser.Scene {
         GameManager.onlineRoom.onMessage("startGame", this.startGame.bind(this, this));
         GameManager.onlineRoom.onStateChange(this.sync.bind(this, this));
         GameManager.onlineRoom.onMessage("bombDrop", this.createBomb.bind(this, this));
+        GameManager.onlineRoom.onMessage("explodeBomb", this.explodeBomb.bind(this, this));
 
         console.log("Game booted.");
         this.createLevel();
@@ -66,12 +74,19 @@ export default class Game extends Phaser.Scene {
         scene.paused = false;
         
         if(data.playerOne.id == GameManager.onlineRoom.sessionId) {
+            
+            Game.player.id = data.playerOne.id;
+            Game.opponent.id = data.playerTwo.id;
+
             scene.thisPlayerUpdate(data.playerOne);
             scene.otherPlayerUpdate(data.playerTwo);
             GameManager.opponentId = data.playerTwo.id;
         }
         else 
         {
+            Game.opponent.id = data.playerOne.id;
+            Game.player.id = data.playerTwo.id;
+
             scene.thisPlayerUpdate(data.playerTwo);
             scene.otherPlayerUpdate(data.playerOne);
             GameManager.opponentId = data.playerOne.id;
@@ -127,8 +142,16 @@ export default class Game extends Phaser.Scene {
 
     createBomb(scene:this, data:IBombDrop){
 
-        let newBomb = new RealBomb(this, data.x, data.y, data.explodeTime);
+        let newBomb = new RealBomb(this, data.player.x, data.player.y, data.bombId, data.player.id);
+        this.bombs.set(data.bombId, newBomb);
 
+    }
+
+    explodeBomb(scene:this, data:{bombId:number})
+    {
+        let theBomb = this.bombs.get(data.bombId);
+        if(theBomb == undefined) return;
+        theBomb.explode();
     }
 
     createLevel() {
@@ -137,6 +160,9 @@ export default class Game extends Phaser.Scene {
 
         Game.player = new Player(this);
         Game.opponent = new Player(this);
+
+        Game.player.tint = Colors.white.color32;
+        Game.opponent.tint = Colors.lightGreen.color32;
 
         this.requestStart();
 

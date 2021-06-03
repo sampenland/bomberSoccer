@@ -1,7 +1,6 @@
 export interface IBombDrop {
-    x:number;
-    y:number;
-    explodeTime:number;
+    bombId:number;
+    player:IPlayer;
 }
 
 export interface IWorld {

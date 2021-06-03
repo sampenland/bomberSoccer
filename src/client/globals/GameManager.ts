@@ -16,7 +16,7 @@ export default class GameManager {
     public static connected:Boolean;
     public static gameReady:Boolean = false;
 
-    public static tempNextRoomId:string;
+    public static tempNextRoomId:string | undefined;
     public static tempOldRoomId:string;
 
 }

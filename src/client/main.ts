@@ -1,5 +1,4 @@
 import 'regenerator-runtime/runtime'
-import RexUIPlugin from 'phaser3-rex-plugins/templates/ui/ui-plugin'
 import Phaser from 'phaser'
 import Game from './scenes/Game';
 import MainMenu from './scenes/MainMenu'

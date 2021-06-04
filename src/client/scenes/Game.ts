@@ -1,15 +1,17 @@
 import Phaser from 'phaser'
+import GameBall from '../gameObjects/GameBall';
 import Player from '../gameObjects/Player';
 import RealBomb from '../gameObjects/RealBomb';
 import Colors from '../globals/Colors'
 import GameManager from '../globals/GameManager';
-import { IBombDrop, IGameRoomState, IPlayer } from '../interfaces/IClientServer';
+import { IBombDrop, IGameBall, IGameRoomState, IPlayer } from '../interfaces/IClientServer';
 
 export default class Game extends Phaser.Scene {
 
     paused:boolean = true;
     public static player:Player;
     public static opponent:Player;
+    public static gameBall:GameBall;
 
     bombs:Map<number, RealBomb>;
 
@@ -29,6 +31,7 @@ export default class Game extends Phaser.Scene {
         // sprites
         this.load.setBaseURL('assets');
         this.load.spritesheet('player', 'sprites/player.png', {frameWidth: 14, frameHeight: 14});
+        this.load.spritesheet('gameBall', 'sprites/gameBall.png', {frameWidth: 32, frameHeight: 32});
         this.load.spritesheet('bomb', 'sprites/bomb.png', {frameWidth: 8, frameHeight: 9});
         this.load.spritesheet('bombExplode', 'sprites/bombExplode.png', {frameWidth: 24, frameHeight: 24});
 
@@ -68,10 +71,12 @@ export default class Game extends Phaser.Scene {
 
     }
 
-    startGame(scene:this, data:{playerOne:IPlayer, playerTwo:IPlayer}) {
+    startGame(scene:this, data:{playerOne:IPlayer, playerTwo:IPlayer, gameBall:IGameBall}) {
 
         console.log("Both players here. Starting game.");
         scene.paused = false;
+
+        scene.updateGameBall(data.gameBall);
         
         if(data.playerOne.id == GameManager.onlineRoom.sessionId) {
             
@@ -97,7 +102,13 @@ export default class Game extends Phaser.Scene {
 
         this.time.delayedCall(1000, () => {
             
-            GameManager.onlineRoom.send("requestStart", {});
+            GameManager.onlineRoom.send("requestStart", {
+
+                gameSize:{width:GameManager.width, height:GameManager.height},
+                borderSize:GameManager.borderSize,
+                goalSize:GameManager.goalSize,
+
+            });
             
             if(this.paused == true)
             {
@@ -111,6 +122,8 @@ export default class Game extends Phaser.Scene {
 
     sync(scene:this, state:IGameRoomState){
 
+        scene.updateGameBall(state.gameWorld.gameBall);
+        
         state.players.forEach((player) => {
 
             if(player.id == GameManager.onlineRoom.sessionId) {
@@ -123,6 +136,12 @@ export default class Game extends Phaser.Scene {
             }
 
         });
+
+    }
+
+    updateGameBall(gameBall:IGameBall) {
+
+        Game.gameBall.setPosition(gameBall.x, gameBall.y);
 
     }
 
@@ -158,11 +177,24 @@ export default class Game extends Phaser.Scene {
 
         console.log("Creating Level");
 
+        let centerXline = this.add.rectangle(0, GameManager.height/2 - 1, GameManager.width, 1, Colors.gray.color32).setOrigin(0, 0);
+        let centerYline = this.add.rectangle(GameManager.width/2 - 1, 0, 1, GameManager.height, Colors.gray.color32).setOrigin(0, 0);
+
+        let top = this.add.rectangle(0, 0, GameManager.width, GameManager.borderSize, Colors.darkGray.color32).setOrigin(0, 0);
+        let bottom = this.add.rectangle(0, GameManager.height - GameManager.borderSize, GameManager.width, GameManager.borderSize, Colors.darkGray.color32).setOrigin(0, 0);
+        let left = this.add.rectangle(0, 0, GameManager.borderSize, GameManager.height, Colors.darkGray.color32).setOrigin(0, 0);
+        let right = this.add.rectangle(GameManager.width - GameManager.borderSize, 0, GameManager.borderSize, GameManager.height, Colors.darkGray.color32).setOrigin(0, 0);
+
+        let topGoal = this.add.rectangle(GameManager.width/2 - GameManager.goalSize/2, 0, GameManager.goalSize, GameManager.borderSize, Colors.white.color32).setOrigin(0, 0);
+        let bottomGoal = this.add.rectangle(GameManager.width/2 - GameManager.goalSize/2, GameManager.height - GameManager.borderSize, GameManager.goalSize, GameManager.borderSize, Colors.white.color32).setOrigin(0, 0);
+
         Game.player = new Player(this);
         Game.opponent = new Player(this);
 
         Game.player.tint = Colors.white.color32;
         Game.opponent.tint = Colors.lightGreen.color32;
+
+        Game.gameBall = new GameBall(this);
 
         this.requestStart();
 

@@ -1,5 +1,7 @@
 import { Room, Client } from "colyseus";
 import { Player } from "../classes/Player";
+import { World } from "../classes/World";
+import { IGameSettings } from "../interfaces/IClientServer";
 import { GameRoomState } from "./schema/GameRoomState";
 
 export class GameRoom extends Room<GameRoomState> {
@@ -9,13 +11,16 @@ export class GameRoom extends Room<GameRoomState> {
     this.setState(new GameRoomState());
     console.log("Created state.");
 
-    this.onMessage("requestStart", (client:Client, message:any) => {
+    this.onMessage("requestStart", (client:Client, gameSettings:IGameSettings) => {
 
       if(this.clients.length == 2) {
+
+        this.state.gameWorld = new World(gameSettings.gameSize.width, gameSettings.gameSize.height,gameSettings.borderSize, gameSettings.goalSize);
 
         this.broadcast("startGame", {
           playerOne: this.state.players[0],
           playerTwo: this.state.players[1],
+          gameBall: this.state.gameWorld.gameBall,
         });
       }
 
@@ -75,11 +80,6 @@ export class GameRoom extends Room<GameRoomState> {
     
     console.log(options.playerName + " [" + client.sessionId + "] joined Game Room.");
 
-    if(this.state.players.length == 0) {
-      this.state.gameWorld.setSize(360, 180);
-    }
-
-    console.log(client.sessionId);
     let joiningPlayer = new Player(options.playerName, client.sessionId, this.state.gameWorld);
     this.state.players.push(joiningPlayer);
     this.state.players[this.state.players.length - 1].positionPlayers(this.state.players.length);

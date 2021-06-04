@@ -27,6 +27,9 @@ export default class SplashScreen extends Phaser.Scene
 
     create()
     {
+        GameManager.width = this.cameras.main.width;
+        GameManager.height = this.cameras.main.height;
+
         console.log('Splash Screen booted.');
 
         let logo = this.add.image(29, this.cameras.main.height - 29, 'logo');

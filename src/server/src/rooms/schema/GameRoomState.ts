@@ -8,6 +8,6 @@ export class GameRoomState extends Schema {
   players = new Array<Player>();
 
   @type(World)
-  gameWorld = new World();
+  gameWorld = new World(0, 0, 0, 0);
 
 }

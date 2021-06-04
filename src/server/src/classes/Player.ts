@@ -80,7 +80,6 @@ export class Player extends Schema {
     }
 
     removeBomb(id:number) {
-        console.log("remove bomb: " + id);
         this.placedBombs.splice(this.placedBombs.indexOf(id), 1);
     }
 
@@ -101,7 +100,6 @@ export class Player extends Schema {
         if(id == -1) return;
 
         this.placedBombs.push(id);
-        console.log("Drop bomb: " + id);
         room.broadcast("bombDrop", {
             player:this,
             bombId: id,

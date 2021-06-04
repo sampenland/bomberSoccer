@@ -33,8 +33,10 @@
     "@colyseus/command": "^0.1.6",
     "@colyseus/monitor": "^0.14.0",
     "@colyseus/social": "^0.10.9",
+    "@types/matter-js": "^0.14.12",
     "colyseus": "^0.14.0",
     "cors": "^2.8.5",
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "matter-js": "^0.17.1"
   }
 }

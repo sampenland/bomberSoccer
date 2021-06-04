@@ -4,6 +4,12 @@ import {Client} from 'colyseus.js'
 
 export default class GameManager {
 
+    public static width:number;
+    public static height:number;
+
+    public static borderSize = 5;
+    public static goalSize = 50;
+    
     public static playerName:string;
     public static playerNum:number;
 

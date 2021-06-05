@@ -100,6 +100,8 @@ export default class Game extends Phaser.Scene {
 
     requestStart() {
 
+        if(this.paused == false) return;
+        
         this.time.delayedCall(1000, () => {
             
             GameManager.onlineRoom.send("requestStart", {
@@ -123,14 +125,13 @@ export default class Game extends Phaser.Scene {
     sync(scene:this, state:IGameRoomState){
 
         scene.updateGameBall(state.gameWorld.gameBall);
-        
+    
         state.players.forEach((player) => {
 
             if(player.id == GameManager.onlineRoom.sessionId) {
                 scene.thisPlayerUpdate(player);
             }
 
-            console.log(player.id, GameManager.opponentId);
             if(player.id == GameManager.opponentId){
                 scene.otherPlayerUpdate(player);
             }

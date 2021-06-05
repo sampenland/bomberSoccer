@@ -1,9 +1,10 @@
 import { Schema, type } from "@colyseus/schema";
 import Matter from "matter-js";
+import { IBomb } from "../interfaces/IClientServer";
 import { World } from "./World";
 
 export class GameBall extends Schema {
-    
+
     @type("string")
     name:string;
 
@@ -17,7 +18,7 @@ export class GameBall extends Schema {
     y:number;
 
     gameWorld:World;
-    body:Matter.Bodies;
+    body:Matter.Body;
 
     constructor(name:string, id:string, worldR?:World|undefined) {
 
@@ -26,6 +27,20 @@ export class GameBall extends Schema {
         this.id = id;
         this.gameWorld = worldR;
 
+        console.log("created gameball");
+
+    }
+
+    update() {
+
+        this.x = this.body.position.x;
+        this.y = this.body.position.y;
+        console.log(this.x, this.y);
+    
+    }
+
+    applyImpulse(bomb:IBomb){
+        // apply impulse
     }
 
 }

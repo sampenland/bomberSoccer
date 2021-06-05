@@ -13,6 +13,8 @@ export class World extends Schema {
     borderSize:number;
     goalSize:number;
 
+    disposed:boolean = false;
+
     pEngine:Matter.Engine;
     pWorld:Matter.World;
     pRunner:Matter.Runner;
@@ -23,36 +25,57 @@ export class World extends Schema {
     constructor(width:number, height:number, borderSize:number, goalSize:number) {
 
         super();
+
+        console.log("Created matter js world");
         this.width = width;
         this.height = height;
         this.borderSize = borderSize;
         this.goalSize = goalSize;
 
         this.pEngine = Matter.Engine.create();
-        this.pWorld = this.pEngine.world;
-
         this.pRunner = Matter.Runner.create();
-        Matter.Runner.run(this.pRunner, this.pEngine);
-
+        this.pWorld = this.pEngine.world;
+        this.pWorld.gravity.x = 0;
+        this.pWorld.gravity.y = 0;
+        
         // borders
         Matter.Composite.add(this.pWorld, 
-            Matter.Bodies.rectangle(0, 0, this.width, this.borderSize, { isStatic: true }) // top
+            Matter.Bodies.rectangle(this.width/2, this.borderSize, this.width, this.borderSize, { isStatic: true }) // top
         );
         Matter.Composite.add(this.pWorld, 
-            Matter.Bodies.rectangle(0, this.height - this.borderSize, this.width, this.height, { isStatic: true }) // bottom
+            Matter.Bodies.rectangle(this.width/2, this.height - this.borderSize, this.width, this.borderSize, { isStatic: true }) // bottom
         );
         Matter.Composite.add(this.pWorld, 
-            Matter.Bodies.rectangle(0, 0, this.borderSize, this.height, { isStatic: true }) // left
+            Matter.Bodies.rectangle(0, this.height/2, this.borderSize, this.height, { isStatic: true }) // left
         );
         Matter.Composite.add(this.pWorld, 
-            Matter.Bodies.rectangle(this.width - this.borderSize, 0, this.width, this.height, { isStatic: true }) // right
+            Matter.Bodies.rectangle(this.width - this.borderSize, this.height/2, this.borderSize, this.height, { isStatic: true }) // right
         );
 
         this.gameBall = new GameBall("gameBall", "gameBall", this);
+        
         this.gameBall.body = Matter.Bodies.circle(this.width/2, this.height/2, 10, {
-            density: 0.01,
-            velocity: {x:100, y:100}
+            mass: 10,
+            friction: 0,
+            frictionAir: 0,
+            restitution: .3
         });
+        this.gameBall.update();
+
+        Matter.Composite.add(this.pWorld, this.gameBall.body);
+
+        Matter.Runner.run(this.pRunner, this.pEngine);
+        Matter.Events.on(this.pRunner, "tick", this.afterUpdate.bind(this, this));
+    }
+
+    afterUpdate(world:this) {
+
+        if(this.disposed) {
+            this.dispose();
+            return;
+        }
+
+        world.gameBall.update();
 
     }
 
@@ -62,5 +85,16 @@ export class World extends Schema {
 
     centerY(){
         return this.height/2;
+    }
+
+    dispose() {
+        console.log("disposing matter js");
+        
+        Matter.Events.off(this.pRunner, "tick", undefined);
+        Matter.World.clear(this.pWorld, false);
+        Matter.Engine.clear(this.pEngine);
+        Matter.Runner.stop(this.pRunner);
+
+        this.disposed = true;
     }
 }

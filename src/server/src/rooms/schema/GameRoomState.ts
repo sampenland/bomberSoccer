@@ -4,10 +4,12 @@ import { World } from "../../classes/World";
 
 export class GameRoomState extends Schema {
 
+  @type("boolean")
+  started:boolean = false;
+
   @type([Player])
   players = new Array<Player>();
 
   @type(World)
-  gameWorld = new World(0, 0, 0, 0);
-
+  gameWorld:World;
 }

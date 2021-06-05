@@ -13,9 +13,17 @@ export class GameRoom extends Room<GameRoomState> {
 
     this.onMessage("requestStart", (client:Client, gameSettings:IGameSettings) => {
 
-      if(this.clients.length == 2) {
+      if(this.clients.length == 2 && !this.state.started) {
 
+        this.state.started = true;
         this.state.gameWorld = new World(gameSettings.gameSize.width, gameSettings.gameSize.height,gameSettings.borderSize, gameSettings.goalSize);
+
+        this.state.players.forEach((player) => {
+          player.setGameWorld(this.state.gameWorld);
+        });
+
+        this.state.players[0].positionPlayers(0);
+        this.state.players[1].positionPlayers(1);
 
         this.broadcast("startGame", {
           playerOne: this.state.players[0],
@@ -80,14 +88,15 @@ export class GameRoom extends Room<GameRoomState> {
     
     console.log(options.playerName + " [" + client.sessionId + "] joined Game Room.");
 
-    let joiningPlayer = new Player(options.playerName, client.sessionId, this.state.gameWorld);
+    let joiningPlayer = new Player(options.playerName, client.sessionId);
     this.state.players.push(joiningPlayer);
-    this.state.players[this.state.players.length - 1].positionPlayers(this.state.players.length);
 
   }
 
   onLeave (client: Client, consented: boolean) {
     console.log(client.sessionId, "left Game Room!");
+    this.state.gameWorld.dispose();
+    // TODO send dispose to client
   }
 
   onDispose() {

@@ -3,3 +3,8 @@ export interface IGameSettings {
     borderSize:number;
     goalSize:number;
 }
+
+export interface IBomb {
+    x:number;
+    y:number;
+}

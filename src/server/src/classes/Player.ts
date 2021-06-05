@@ -25,23 +25,26 @@ export class Player extends Schema {
 
     placedBombs:Array<number>;
 
-    constructor(name:string, id:string, worldR?:World|undefined) {
+    constructor(name:string, id:string) {
 
         super();
         this.name = name;
         this.id = id;
-        this.gameWorld = worldR;
         this.placedBombs = new Array<number>();
 
     }
 
+    setGameWorld(world:World) {
+        this.gameWorld = world;
+    }
+
     positionPlayers(num:number) {
         
-        if(num == 1) {
+        if(num == 0) {
             this.x = this.gameWorld.centerX();
             this.y = this.gameWorld.height - 30;
         }
-        else if(num == 2) {
+        else if(num == 1) {
             this.x = this.gameWorld.centerX();
             this.y = 30;
         }

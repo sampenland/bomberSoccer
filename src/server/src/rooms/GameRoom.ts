@@ -1,7 +1,7 @@
 import { Room, Client } from "colyseus";
 import { Player } from "../classes/Player";
 import { World } from "../classes/World";
-import { IGameSettings } from "../interfaces/IClientServer";
+import { IGameSettings, IPhysicsSettings } from "../interfaces/IClientServer";
 import { GameRoomState } from "./schema/GameRoomState";
 
 export class GameRoom extends Room<GameRoomState> {
@@ -11,18 +11,40 @@ export class GameRoom extends Room<GameRoomState> {
     this.setState(new GameRoomState());
     console.log("Created state.");
 
+    this.onMessage("adjustedSettings", (client:Client, settings:IPhysicsSettings) => {
+
+      this.state.settings = settings;
+      this.broadcast("adjustedSettings", settings);
+
+    });
+
     this.onMessage("requestStart", (client:Client, gameSettings:IGameSettings) => {
 
-      if(this.clients.length == 2 && !this.state.started) {
+      if((this.clients.length == 2 || gameSettings.testGame) && !this.state.started) {
 
         this.state.started = true;
-        this.state.gameWorld = new World(gameSettings.gameSize.width, gameSettings.gameSize.height,gameSettings.borderSize, gameSettings.goalSize);
+        
+        this.state.settings = {
+          blastRadiusMax: 25,
+          blastMagnitude: 15,
+          explodeTime: 10,
+          maxSpeed: 10,
+          gameBallMass: 4,
+        };
 
-        this.state.players.forEach((player) => {
-          player.setGameWorld(this.state.gameWorld);
-        });
+        this.state.gameWorld = new World(gameSettings.gameSize.width, gameSettings.gameSize.height,gameSettings.borderSize, gameSettings.goalSize, this.state);
+
+        this.broadcast("adjustedSettings", this.state.settings);
+
+        this.state.players[0].setGameWorld(this.state.gameWorld);
 
         this.state.players[0].positionPlayers(0);
+        
+        if(this.state.players.length == 1) {
+          this.state.players.push(new Player("CPU", "cpu"));
+        }
+
+        this.state.players[1].setGameWorld(this.state.gameWorld);
         this.state.players[1].positionPlayers(1);
 
         this.broadcast("startGame", {
@@ -32,6 +54,13 @@ export class GameRoom extends Room<GameRoomState> {
         });
       }
 
+    });
+
+    this.onMessage("resetBall", () => {
+      this.state.gameWorld.gameBall.body.velocity = {x:0,y:0};
+      this.state.gameWorld.gameBall.body.force = {x:0, y:0};
+      this.state.gameWorld.gameBall.body.position = {x: this.state.gameWorld.width/2, y: this.state.gameWorld.height/2};
+      this.state.gameWorld.gameBall.update();
     });
 
     this.onMessage("removeBomb", (client:Client, message:{playerId:string, bombId:number}) => {

@@ -7,6 +7,8 @@ export default class GameManager {
     public static width:number;
     public static height:number;
 
+    public static testName:string = "TESTER";
+
     public static borderSize = 5;
     public static goalSize = 50;
     

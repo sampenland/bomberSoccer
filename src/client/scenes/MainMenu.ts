@@ -53,22 +53,42 @@ export default class MainMenu extends Phaser.Scene
 
     async joinGameLobby(){
 
-        try {
+        if(GameManager.playerName == GameManager.testName) {
 
-            GameManager.onlineRoom = await GameManager.client.create("gameLobby", {playerName: GameManager.playerName});
+            GameManager.opponentId = "cpu";
+            GameManager.opponentName = "CPU";
             
-            GameManager.onlineRoom.onMessage('updateOpponent', this.updateOpponent.bind(this, this));
-            GameManager.onlineRoom.onMessage('gotoGameRoom', this.gotoGameRoom.bind(this, this));
-            GameManager.onlineRoom.onMessage('createGameRoom', this.createGameRoom.bind(this, this));
-            
-            GameManager.connected = true;
-            console.log("Joined game lobby.", GameManager.onlineRoom);
-        
-            this.getOpponent();
+            try
+            {
+                GameManager.onlineRoom = await GameManager.client.create("gameRoom", {playerName: GameManager.playerName});
+                this.scene.start("game");
 
-        } catch (e) {
-            GameManager.connected = false;
-            console.error("Failed to join game lobby.", e);
+            }
+            catch(e)
+            {
+                console.log("Failed to join created Game Room");
+            }
+
+        }
+        else
+        {
+            try {
+
+                GameManager.onlineRoom = await GameManager.client.create("gameLobby", {playerName: GameManager.playerName});
+                
+                GameManager.onlineRoom.onMessage('updateOpponent', this.updateOpponent.bind(this, this));
+                GameManager.onlineRoom.onMessage('gotoGameRoom', this.gotoGameRoom.bind(this, this));
+                GameManager.onlineRoom.onMessage('createGameRoom', this.createGameRoom.bind(this, this));
+                
+                GameManager.connected = true;
+                console.log("Joined game lobby.", GameManager.onlineRoom);
+            
+                this.getOpponent();
+    
+            } catch (e) {
+                GameManager.connected = false;
+                console.error("Failed to join game lobby.", e);
+            }
         }
 
     }

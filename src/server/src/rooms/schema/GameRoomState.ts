@@ -1,6 +1,7 @@
 import { Schema, MapSchema, type } from "@colyseus/schema";
 import { Player } from "../../classes/Player"
 import { World } from "../../classes/World";
+import { IPhysicsSettings } from "../../interfaces/IClientServer";
 
 export class GameRoomState extends Schema {
 
@@ -12,4 +13,7 @@ export class GameRoomState extends Schema {
 
   @type(World)
   gameWorld:World;
+
+  settings:IPhysicsSettings;
+  
 }

@@ -1,3 +1,13 @@
+export interface IPhysicsSettings {
+
+    blastRadiusMax:number;
+    blastMagnitude:number;
+    explodeTime:number;
+    maxSpeed:number;
+    gameBallMass:number;
+
+}
+
 export interface IGameBall {
     name:string;
     id:string;

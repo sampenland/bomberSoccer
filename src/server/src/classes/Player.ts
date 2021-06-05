@@ -103,17 +103,22 @@ export class Player extends Schema {
         if(id == -1) return;
 
         this.placedBombs.push(id);
+        let bombX = this.x;
+        let bombY = this.y;
+
         room.broadcast("bombDrop", {
             player:this,
             bombId: id,
         });
 
-        let explodeTime = 2300;
-        setTimeout(() =>{
+        setTimeout(this.explodeBomb, this.gameWorld.state.settings.explodeTime, room, id, bombX, bombY);
 
-            room.broadcast("explodeBomb", {bombId:id});
+    }
 
-        }, explodeTime);
+    explodeBomb(room:Room<GameRoomState>, id:string, bombX:number, bombY:number) {
+
+        room.broadcast("explodeBomb", {bombId:id});
+        room.state.gameWorld.gameBall.applyImpulse({x: bombX, y: bombY});
 
     }
 

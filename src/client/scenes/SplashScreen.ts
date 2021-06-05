@@ -82,20 +82,28 @@ export default class SplashScreen extends Phaser.Scene
                 if(inputUsername != null && inputUsername != ""){
 
                     GameManager.playerName = inputUsername;
-                    GameManager.tempNextRoomId = undefined;
-                    GameManager.client.getAvailableRooms("gameLobby").then(rooms =>
+
+                    if(GameManager.playerName == GameManager.testName)
                     {
-                        for(let room of rooms){
-
-                            console.log("looking at " + room.roomId + " and has: " + room.clients + " clients.");
-                            if(room.clients == 1){
-                                GameManager.tempNextRoomId = room.roomId;
-                                break;
-                            }
-                        }
+                        GameManager.tempNextRoomId = undefined;
                         this.scene.start("mainMenu");
-                    });
-
+                    }
+                    else
+                    {
+                        GameManager.tempNextRoomId = undefined;
+                        GameManager.client.getAvailableRooms("gameLobby").then(rooms =>
+                        {
+                            for(let room of rooms){
+    
+                                console.log("looking at " + room.roomId + " and has: " + room.clients + " clients.");
+                                if(room.clients == 1){
+                                    GameManager.tempNextRoomId = room.roomId;
+                                    break;
+                                }
+                            }
+                            this.scene.start("mainMenu");
+                        });
+                    }
                 }
 
             }

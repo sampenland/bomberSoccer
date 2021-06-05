@@ -1,5 +1,6 @@
 import { Schema, type } from "@colyseus/schema";
 import Matter from 'matter-js'
+import { GameRoomState } from "../rooms/schema/GameRoomState";
 import { GameBall } from "./GameBall";
 
 export class World extends Schema {
@@ -14,6 +15,7 @@ export class World extends Schema {
     goalSize:number;
 
     disposed:boolean = false;
+    scaleCorrection:number;
 
     pEngine:Matter.Engine;
     pWorld:Matter.World;
@@ -21,8 +23,9 @@ export class World extends Schema {
 
     @type(GameBall)
     gameBall:GameBall;
+    state:GameRoomState;
 
-    constructor(width:number, height:number, borderSize:number, goalSize:number) {
+    constructor(width:number, height:number, borderSize:number, goalSize:number, state:GameRoomState) {
 
         super();
 
@@ -37,6 +40,10 @@ export class World extends Schema {
         this.pWorld = this.pEngine.world;
         this.pWorld.gravity.x = 0;
         this.pWorld.gravity.y = 0;
+
+        this.state = state;
+
+        this.scaleCorrection = 10/24; // server gameball size / client gameball size
         
         // borders
         Matter.Composite.add(this.pWorld, 
@@ -54,11 +61,10 @@ export class World extends Schema {
 
         this.gameBall = new GameBall("gameBall", "gameBall", this);
         
-        this.gameBall.body = Matter.Bodies.circle(this.width/2, this.height/2, 10, {
-            mass: 10,
-            friction: 0,
+        this.gameBall.body = Matter.Bodies.circle(this.width/2, this.height/2, 24 * this.scaleCorrection, {
+            mass: this.state.settings.gameBallMass,
             frictionAir: 0,
-            restitution: .3
+            restitution: .8
         });
         this.gameBall.update();
 
@@ -66,6 +72,7 @@ export class World extends Schema {
 
         Matter.Runner.run(this.pRunner, this.pEngine);
         Matter.Events.on(this.pRunner, "tick", this.afterUpdate.bind(this, this));
+
     }
 
     afterUpdate(world:this) {
@@ -88,8 +95,7 @@ export class World extends Schema {
     }
 
     dispose() {
-        console.log("disposing matter js");
-        
+                
         Matter.Events.off(this.pRunner, "tick", undefined);
         Matter.World.clear(this.pWorld, false);
         Matter.Engine.clear(this.pEngine);

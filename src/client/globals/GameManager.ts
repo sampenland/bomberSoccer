@@ -9,8 +9,8 @@ export default class GameManager {
 
     public static testName:string = "TESTER";
 
-    public static borderSize = 5;
-    public static goalSize = 50;
+    public static borderSize = 12;
+    public static goalSize = 80;
     
     public static playerName:string;
     public static playerNum:number;

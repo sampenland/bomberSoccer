@@ -109,8 +109,8 @@ export default class SplashScreen extends Phaser.Scene
             }
         });
 
-        GameManager.client = new Colyseus.Client("ws://134.122.118.243");
-        //GameManager.client = new Colyseus.Client("ws://localhost:2567");
+        //GameManager.client = new Colyseus.Client("ws://134.122.118.243");
+        GameManager.client = new Colyseus.Client("ws://localhost:2567");
         this.joinMainLobby();
         
     }

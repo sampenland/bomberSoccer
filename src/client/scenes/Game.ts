@@ -211,8 +211,8 @@ export default class Game extends Phaser.Scene {
         let left = this.add.rectangle(0, 0, GameManager.borderSize, GameManager.height, Colors.darkGray.color32).setOrigin(0, 0);
         let right = this.add.rectangle(GameManager.width - GameManager.borderSize, 0, GameManager.borderSize, GameManager.height, Colors.darkGray.color32).setOrigin(0, 0);
 
-        let topGoal = this.add.rectangle(GameManager.width/2 - GameManager.goalSize/2, 0, GameManager.goalSize, GameManager.borderSize, Colors.white.color32).setOrigin(0, 0);
-        let bottomGoal = this.add.rectangle(GameManager.width/2 - GameManager.goalSize/2, GameManager.height - GameManager.borderSize, GameManager.goalSize, GameManager.borderSize, Colors.white.color32).setOrigin(0, 0);
+        let leftGoal = this.add.rectangle(0, GameManager.height/2 - GameManager.goalSize/2, GameManager.borderSize, GameManager.goalSize, Colors.white.color32).setOrigin(0, 0);
+        let rightGoal = this.add.rectangle(GameManager.width - GameManager.borderSize, GameManager.height/2 - GameManager.goalSize/2, GameManager.borderSize, GameManager.goalSize, Colors.white.color32).setOrigin(0, 0);
 
         Game.player = new Player(this);
         Game.opponent = new Player(this);

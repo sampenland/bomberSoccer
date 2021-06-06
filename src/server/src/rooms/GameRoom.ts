@@ -25,10 +25,10 @@ export class GameRoom extends Room<GameRoomState> {
         this.state.started = true;
         
         this.state.settings = {
-          blastRadiusMax: 25,
-          blastMagnitude: 15,
-          explodeTime: 10,
-          maxSpeed: 10,
+          blastRadiusMax: 100,
+          blastMagnitude: 10,
+          explodeTime: 1000,
+          maxSpeed: 1,
           gameBallMass: 4,
         };
 

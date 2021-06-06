@@ -37,7 +37,6 @@ export class GameBall extends Schema {
 
         this.x = this.body.position.x;
         this.y = this.body.position.y;
-        console.log(this.x, this.y);
     
     }
 

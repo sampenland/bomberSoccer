@@ -41,12 +41,12 @@ export class Player extends Schema {
     positionPlayers(num:number) {
         
         if(num == 0) {
-            this.x = this.gameWorld.centerX();
-            this.y = this.gameWorld.height - 30;
+            this.x = 30;
+            this.y = this.gameWorld.centerY()
         }
         else if(num == 1) {
-            this.x = this.gameWorld.centerX();
-            this.y = 30;
+            this.x = this.gameWorld.width - 30;
+            this.y = this.gameWorld.centerY();
         }
 
     }

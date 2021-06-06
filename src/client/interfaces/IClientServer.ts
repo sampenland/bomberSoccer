@@ -1,3 +1,19 @@
+export interface IControls {
+    tryDropBomb:boolean;
+    mouseX:number;
+    mouseY:number;
+    leftPressed:number;
+    rightPressed:number;
+}
+
+export interface IGameSettings {
+    gameSize:{width:number, height:number};
+    borderSize:number;
+    goalSize:number;
+    testGame:boolean;
+    bombsAvailable:number;
+}
+
 export interface IPhysicsSettings {
 
     blastRadiusMax:number;

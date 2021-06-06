@@ -1,8 +1,16 @@
+export interface IControls {
+    mouseX:number;
+    mouseY:number;
+    leftPressed:boolean;
+    rightPressed:boolean;
+}
+
 export interface IGameSettings {
     gameSize:{width:number, height:number};
     borderSize:number;
     goalSize:number;
     testGame:boolean;
+    bombsAvailable:number;
 }
 
 export interface IBomb {
@@ -10,12 +18,14 @@ export interface IBomb {
     y:number;
 }
 
-export interface IPhysicsSettings {
+export interface IAdjustableSettings {
 
     blastRadiusMax:number;
     blastMagnitude:number;
     explodeTime:number;
     maxSpeed:number;
     gameBallMass:number;
+    bombsAvailable:number;
+    instantBombReset:number;
 
 }

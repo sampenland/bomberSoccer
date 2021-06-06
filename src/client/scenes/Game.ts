@@ -17,7 +17,8 @@ export default class Game extends Phaser.Scene {
 
     bombs:Map<number, RealBomb>;
 
-    spaceDown:boolean = false;
+    leftClickDown:boolean = false;
+    rightClickDown:boolean = false;
     tDown:boolean = false;
 
     constructor() {
@@ -51,11 +52,39 @@ export default class Game extends Phaser.Scene {
 
     controls(){
 
-        let left = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
-        let right = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
-        let up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
-        let down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
-        
+        this.controlSettings();
+        let c = this.controlMouse();
+
+        GameManager.onlineRoom.send("controls", {
+            mouseX: c.mouseX,
+            mouseY: c.mouseY,
+            leftPressed: c.leftPressed,
+            rightPressed: c.rightPressed
+        });
+    }
+
+    controlMouse() {
+
+        let leftClick = this.input.activePointer.leftButtonDown();
+        let rightClick = this.input.activePointer.rightButtonDown();
+
+        let leftClickPressed = leftClick && !this.leftClickDown;
+        let rightClickPressed = rightClick && !this.rightClickDown;
+
+        this.leftClickDown = leftClick;
+        this.rightClickDown = rightClick;
+
+        return {
+            mouseX: this.input.activePointer.worldX, 
+            mouseY: this.input.activePointer.worldY, 
+            leftPressed: leftClickPressed, 
+            rightPressed: rightClickPressed
+        };
+
+    }
+
+    controlSettings() {
+
         let t = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.T);
         let tPressed = t.isDown && !this.tDown;
 
@@ -72,25 +101,27 @@ export default class Game extends Phaser.Scene {
             }
         }
 
-        let space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-        let spacePressed = space.isDown && !this.spaceDown;
-
-        GameManager.onlineRoom.send("controls", {up:up.isDown, down:down.isDown, left:left.isDown, right:right.isDown, space:spacePressed});
-        this.spaceDown = space.isDown;
         this.tDown = t.isDown;
-        
+
     }
 
     create() {
+
+        this.input.setPollAlways();
+        this.setupServerMessages();
+
+        console.log("Game booted.");
+        this.createLevel();
+
+    }
+
+    setupServerMessages() {
 
         GameManager.onlineRoom.onMessage("startGame", this.startGame.bind(this, this));
         GameManager.onlineRoom.onStateChange(this.sync.bind(this, this));
         GameManager.onlineRoom.onMessage("bombDrop", this.createBomb.bind(this, this));
         GameManager.onlineRoom.onMessage("explodeBomb", this.explodeBomb.bind(this, this));
         GameManager.onlineRoom.onMessage("adjustedSettings", this.adjustedSettings.bind(this, this));
-
-        console.log("Game booted.");
-        this.createLevel();
 
     }
 
@@ -133,6 +164,7 @@ export default class Game extends Phaser.Scene {
                 borderSize:GameManager.borderSize,
                 goalSize:GameManager.goalSize,
                 testGame: GameManager.playerName == GameManager.testName,
+                bombsAvailable: -1,
 
             });
             
@@ -192,11 +224,12 @@ export default class Game extends Phaser.Scene {
 
     }
 
-    explodeBomb(scene:this, data:{bombId:number})
+    explodeBomb(scene:this, data:{bombId:number, explodeScale:number})
     {
         let theBomb = this.bombs.get(data.bombId);
         if(theBomb == undefined) return;
-        theBomb.explode();
+        console.log(data.explodeScale);
+        theBomb.explode(data.explodeScale);
     }
 
     createLevel() {

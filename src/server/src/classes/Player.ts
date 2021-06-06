@@ -17,11 +17,15 @@ export class Player extends Schema {
     @type("number")
     y:number;
 
-    @type("number")
-    angle:number;
-
     @type(World)
     gameWorld:World;
+
+    @type("number")
+    bombsAvailable:number;
+
+    @type("number")
+    instantBombsAvailable:number = 1;
+    canDropInstant:boolean = true;
 
     placedBombs:Array<number>;
 
@@ -34,8 +38,9 @@ export class Player extends Schema {
 
     }
 
-    setGameWorld(world:World) {
+    setGameWorld(world:World, bombsAvailable:number) {
         this.gameWorld = world;
+        this.bombsAvailable = bombsAvailable;
     }
 
     positionPlayers(num:number) {
@@ -51,43 +56,45 @@ export class Player extends Schema {
 
     }
 
-    setPosition(x:number, y:number, angle?:number) {
+    setPosition(x:number, y:number) {
         
         this.x = x;
         this.y = y;
-        
-        if(angle)
-        {
-            this.angle = angle;
-        }
-    }
-
-    setAngle(a:number){
-        this.angle = a;
-    }
-
-    moveUp(speed:number) {
-        this.y -= speed;
-    }
-
-    moveDown(speed:number) {
-        this.y += speed;
-    }
-
-    moveRight(speed:number) {
-        this.x += speed;
-    }
-
-    moveLeft(speed:number) {
-        this.x -= speed;
     }
 
     removeBomb(id:number) {
         this.placedBombs.splice(this.placedBombs.indexOf(id), 1);
     }
 
-    dropBomb(room:Room<GameRoomState>) {
+    dropBomb(room:Room<GameRoomState>, instant?:boolean) {
         
+        if(instant && this.canDropInstant) 
+        {
+            this.canDropInstant = false;
+            setTimeout(() => {
+                this.canDropInstant = true;
+            }, this.gameWorld.state.settings.instantBombReset);
+        }
+        else if(instant && !this.canDropInstant)
+        {
+            return;
+        }
+        else
+        {
+            if(this.bombsAvailable != -1)
+            {
+                if(this.bombsAvailable < 1) {
+                    return;
+                }
+                else
+                {
+                    this.bombsAvailable--;
+                }
+            }
+        }
+
+        
+
         let hasId = false;
         let id = -1;
         let cnt = 0;
@@ -111,13 +118,17 @@ export class Player extends Schema {
             bombId: id,
         });
 
-        setTimeout(this.explodeBomb, this.gameWorld.state.settings.explodeTime, room, id, bombX, bombY);
+        let explodeTime = this.gameWorld.state.settings.explodeTime;
+        if(instant) explodeTime = 10;
+
+        setTimeout(this.explodeBomb, explodeTime, room, id, bombX, bombY);
 
     }
 
     explodeBomb(room:Room<GameRoomState>, id:string, bombX:number, bombY:number) {
 
-        room.broadcast("explodeBomb", {bombId:id});
+        let scaleConstant = 12;
+        room.broadcast("explodeBomb", {bombId:id, explodeScale:room.state.settings.blastRadiusMax/scaleConstant});
         room.state.gameWorld.gameBall.applyImpulse({x: bombX, y: bombY});
 
     }

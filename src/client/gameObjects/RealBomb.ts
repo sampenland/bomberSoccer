@@ -25,7 +25,7 @@ export default class RealBomb extends Phaser.GameObjects.Sprite {
             key: 'bombExplode',
             frames: this.anims.generateFrameNumbers('bombExplode', {frames: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}),
             frameRate: 15,
-            repeat: 0
+            repeat: 0,
         });
 
         this.anims.play('bombBurning');
@@ -33,9 +33,13 @@ export default class RealBomb extends Phaser.GameObjects.Sprite {
 
     }
 
-    explode() {
+    explode(scale:number) {
 
-        this.anims.play('bombExplode');
+        if(this.anims != undefined) {
+            this.scale = scale;
+            this.alpha = 0.2;
+            this.anims.play('bombExplode');
+        }
         
         if(Game.player.id == this.playerId) {
             GameManager.onlineRoom.send("removeBomb", {playerId:this.playerId, bombId:this.id});

@@ -86,18 +86,24 @@ export class GameRoom extends Room<GameRoomState> {
 
         if(player.id == client.sessionId) {
 
-          player.setPosition(message.mouseX, message.mouseY);
+          if(message.middlePressed)
+          {
+            this.broadcast("opponentPosition", {x:player.x, y:player.y}, {except: client});
+            player.setPosition(message.mouseX, message.mouseY);
+            player.dropBomb(this, true);
+          }
+          
 
           if(message.leftPressed) {
-
-            player.dropBomb(this);
-
+            this.broadcast("opponentPosition", {x:player.x, y:player.y}, {except: client});
+            player.setPosition(message.mouseX, message.mouseY);
+            
           }
 
           if(message.rightPressed) {
-
-            player.dropBomb(this, true);
-
+            this.broadcast("opponentPosition", {x:player.x, y:player.y}, {except: client});
+            player.setPosition(message.mouseX, message.mouseY);
+            player.dropBomb(this);
           }
 
         }

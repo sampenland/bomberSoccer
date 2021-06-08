@@ -3,6 +3,7 @@ export interface IControls {
     mouseY:number;
     leftPressed:boolean;
     rightPressed:boolean;
+    middlePressed:boolean;
 }
 
 export interface IGameSettings {

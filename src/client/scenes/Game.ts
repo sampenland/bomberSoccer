@@ -19,6 +19,8 @@ export default class Game extends Phaser.Scene {
 
     leftClickDown:boolean = false;
     rightClickDown:boolean = false;
+    middleClickDown:boolean = false;
+
     tDown:boolean = false;
 
     constructor() {
@@ -36,6 +38,7 @@ export default class Game extends Phaser.Scene {
         this.load.setBaseURL('assets');
         this.load.html('settings', 'html/settings.html');
         this.load.spritesheet('player', 'sprites/player.png', {frameWidth: 14, frameHeight: 14});
+        this.load.spritesheet('playerTeleport', 'sprites/playerTeleport.png', {frameWidth: 14, frameHeight: 22});
         this.load.spritesheet('gameBall', 'sprites/gameBall.png', {frameWidth: 32, frameHeight: 32});
         this.load.spritesheet('bomb', 'sprites/bomb.png', {frameWidth: 8, frameHeight: 9});
         this.load.spritesheet('bombExplode', 'sprites/bombExplode.png', {frameWidth: 24, frameHeight: 24});
@@ -47,6 +50,8 @@ export default class Game extends Phaser.Scene {
         if(this.paused) return;
 
         this.controls();
+        Game.player.update();
+        Game.opponent.update();
 
     }
 
@@ -59,26 +64,41 @@ export default class Game extends Phaser.Scene {
             mouseX: c.mouseX,
             mouseY: c.mouseY,
             leftPressed: c.leftPressed,
-            rightPressed: c.rightPressed
+            rightPressed: c.rightPressed,
+            middlePressed: c.middlePressed,
         });
+
+        if(c.rightPressed || c.leftPressed || c.middlePressed) {
+            Game.player.teleport();
+        }
+
+    }
+
+    showOpponentTeleport(room:this, data:{x:number, y:number}) {
+        Game.opponent.setPosition(data.x, data.y);
+        Game.opponent.teleport();
     }
 
     controlMouse() {
 
         let leftClick = this.input.activePointer.leftButtonDown();
         let rightClick = this.input.activePointer.rightButtonDown();
+        let middleClick = this.input.activePointer.middleButtonDown();
 
         let leftClickPressed = leftClick && !this.leftClickDown;
         let rightClickPressed = rightClick && !this.rightClickDown;
+        let middleClickPressed = middleClick && !this.middleClickDown;
 
         this.leftClickDown = leftClick;
         this.rightClickDown = rightClick;
+        this.middleClickDown = middleClick;
 
         return {
-            mouseX: this.input.activePointer.worldX, 
-            mouseY: this.input.activePointer.worldY, 
+            mouseX: this.input.mousePointer.worldX, 
+            mouseY: this.input.mousePointer.worldY, 
             leftPressed: leftClickPressed, 
-            rightPressed: rightClickPressed
+            rightPressed: rightClickPressed,
+            middlePressed: middleClickPressed,
         };
 
     }
@@ -122,7 +142,7 @@ export default class Game extends Phaser.Scene {
         GameManager.onlineRoom.onMessage("bombDrop", this.createBomb.bind(this, this));
         GameManager.onlineRoom.onMessage("explodeBomb", this.explodeBomb.bind(this, this));
         GameManager.onlineRoom.onMessage("adjustedSettings", this.adjustedSettings.bind(this, this));
-
+        GameManager.onlineRoom.onMessage("opponentPosition", this.showOpponentTeleport.bind(this, this));
     }
 
     startGame(scene:this, data:{playerOne:IPlayer, playerTwo:IPlayer, gameBall:IGameBall}) {
@@ -248,7 +268,11 @@ export default class Game extends Phaser.Scene {
         let rightGoal = this.add.rectangle(GameManager.width - GameManager.borderSize, GameManager.height/2 - GameManager.goalSize/2, GameManager.borderSize, GameManager.goalSize, Colors.white.color32).setOrigin(0, 0);
 
         Game.player = new Player(this);
+        Game.player.setPlayerName(GameManager.playerName);
         Game.opponent = new Player(this);
+        
+        if(GameManager.opponentName)
+            Game.opponent.setPlayerName(GameManager.opponentName);
 
         Game.player.tint = Colors.white.color32;
         Game.opponent.tint = Colors.lightGreen.color32;

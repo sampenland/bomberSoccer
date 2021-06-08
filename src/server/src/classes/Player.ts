@@ -44,7 +44,7 @@ export class Player extends Schema {
     setGameWorld(world:World, bombsAvailable:number) {
         this.gameWorld = world;
         this.bombsAvailable = bombsAvailable;
-        this.body = Matter.Bodies.circle(this.x, this.y, 26 * World.scaleCorrection, {isStatic: true});
+        this.body = Matter.Bodies.circle(40, 90, 26 * World.scaleCorrection, {isStatic: true});
         Matter.Composite.add(this.gameWorld.pWorld, this.body);
     }
 

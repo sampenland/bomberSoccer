@@ -33,7 +33,7 @@ export class GameRoom extends Room<GameRoomState> {
           gameBallMass: 4,
           bombsAvailable: gameSettings.bombsAvailable,
           instantBombReset: 5000,
-          moveDelay:3000
+          moveDelay:1500
         };
 
         this.state.gameWorld = new World(gameSettings.gameSize.width, gameSettings.gameSize.height,gameSettings.borderSize, gameSettings.goalSize, this.state);

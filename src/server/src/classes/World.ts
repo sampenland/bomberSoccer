@@ -38,7 +38,7 @@ export class World extends Schema {
         this.pEngine = Matter.Engine.create();
         this.pRunner = Matter.Runner.create();
         this.pWorld = this.pEngine.world;
-        this.pWorld.gravity.x = -.05;
+        this.pWorld.gravity.x = 0;
         this.pWorld.gravity.y = 0;
 
         this.state = state;

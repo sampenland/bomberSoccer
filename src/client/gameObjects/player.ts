@@ -61,7 +61,7 @@ export default class Player extends Phaser.GameObjects.Sprite
     }
 
     updateFramerate() {
-        this.moveTimer.anims.get('tick').frameRate = this.moveDelay / (4 / 1/60);
+        this.moveTimer.anims.get('tick').frameRate = 4 / (this.moveDelay / 1000);
     }
 
     teleport() {

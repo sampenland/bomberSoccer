@@ -14,10 +14,23 @@ export default class Player extends Phaser.GameObjects.Sprite
     moves:number = 2;
     resetMovesTime:number = 3000;
 
+    moveTimer:Phaser.GameObjects.Sprite;
+
     constructor(scene:Phaser.Scene){
 
         super(scene, -100, -100, 'player');
         this.scene.add.existing(this);
+
+        this.moveTimer = new Phaser.GameObjects.Sprite(scene, this.x, this.y, 'moveTimer');
+        this.moveTimer.alpha = 0;
+        scene.add.existing(this.moveTimer);
+
+        this.moveTimer.anims.create({
+            key: 'tick',
+            frames: this.anims.generateFrameNumbers('moveTimer', { frames: [0, 1, 2, 3]}),
+            frameRate: this.resetMovesTime / (4 * 600),
+            repeat: -1
+        });
 
         this.anims.create({
             key: 'stand',
@@ -44,6 +57,7 @@ export default class Player extends Phaser.GameObjects.Sprite
     update() 
     {
         this.label.setPosition(this.x, this.y - 20);
+        this.moveTimer.setPosition(this.x - this.width * 0.75, this.y);
     }
 
     teleport() {
@@ -51,8 +65,15 @@ export default class Player extends Phaser.GameObjects.Sprite
         this.moves--;
 
         if(this.moves == 0) {
+
+            this.moveTimer.alpha = 1;
+            this.moveTimer.play("tick");
+
             setTimeout(() => {
+                
                 this.moves = this.maxMoves;
+                this.moveTimer.alpha = 0;
+
             }, this.resetMovesTime);
         }
 

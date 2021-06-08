@@ -38,6 +38,7 @@ export default class Game extends Phaser.Scene {
         this.load.html('settings', 'html/settings.html');
         this.load.spritesheet('player', 'sprites/player.png', {frameWidth: 14, frameHeight: 14});
         this.load.spritesheet('playerTeleport', 'sprites/playerTeleport.png', {frameWidth: 14, frameHeight: 22});
+        this.load.spritesheet('moveTimer', 'sprites/moveTimer.png', {frameWidth: 8, frameHeight: 9});
         this.load.spritesheet('gameBall', 'sprites/gameBall.png', {frameWidth: 32, frameHeight: 32});
         this.load.spritesheet('bomb', 'sprites/bomb.png', {frameWidth: 8, frameHeight: 9});
         this.load.spritesheet('bombExplode', 'sprites/bombExplode.png', {frameWidth: 24, frameHeight: 24});

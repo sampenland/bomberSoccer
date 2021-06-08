@@ -28,5 +28,6 @@ export interface IAdjustableSettings {
     gameBallMass:number;
     bombsAvailable:number;
     instantBombReset:number;
+    moveDelay:number;
 
 }

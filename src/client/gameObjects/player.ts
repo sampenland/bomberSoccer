@@ -12,7 +12,7 @@ export default class Player extends Phaser.GameObjects.Sprite
     
     maxMoves:number = 2;
     moves:number = 2;
-    resetMovesTime:number = 3000;
+    moveDelay:number = 3000;
 
     moveTimer:Phaser.GameObjects.Sprite;
 
@@ -28,7 +28,7 @@ export default class Player extends Phaser.GameObjects.Sprite
         this.moveTimer.anims.create({
             key: 'tick',
             frames: this.anims.generateFrameNumbers('moveTimer', { frames: [0, 1, 2, 3]}),
-            frameRate: this.resetMovesTime / (4 * 600),
+            frameRate: this.moveDelay / (4 * 600),
             repeat: -1
         });
 
@@ -60,6 +60,10 @@ export default class Player extends Phaser.GameObjects.Sprite
         this.moveTimer.setPosition(this.x - this.width * 0.75, this.y);
     }
 
+    updateFramerate() {
+        this.moveTimer.anims.get('tick').frameRate = this.moveDelay / (4 / 1/60);
+    }
+
     teleport() {
 
         this.moves--;
@@ -74,7 +78,7 @@ export default class Player extends Phaser.GameObjects.Sprite
                 this.moves = this.maxMoves;
                 this.moveTimer.alpha = 0;
 
-            }, this.resetMovesTime);
+            }, this.moveDelay);
         }
 
         this.anims.play("teleport");

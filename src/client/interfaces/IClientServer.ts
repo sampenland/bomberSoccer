@@ -14,13 +14,14 @@ export interface IGameSettings {
     bombsAvailable:number;
 }
 
-export interface IPhysicsSettings {
+export interface IAdjustableSettings {
 
     blastRadiusMax:number;
     blastMagnitude:number;
     explodeTime:number;
     maxSpeed:number;
     gameBallMass:number;
+    moveDelay:number;
 
 }
 

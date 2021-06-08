@@ -32,7 +32,8 @@ export class GameRoom extends Room<GameRoomState> {
           maxSpeed: 1,
           gameBallMass: 4,
           bombsAvailable: gameSettings.bombsAvailable,
-          instantBombReset: 5000
+          instantBombReset: 5000,
+          moveDelay:3000
         };
 
         this.state.gameWorld = new World(gameSettings.gameSize.width, gameSettings.gameSize.height,gameSettings.borderSize, gameSettings.goalSize, this.state);
@@ -55,6 +56,7 @@ export class GameRoom extends Room<GameRoomState> {
           playerTwo: this.state.players[1],
           gameBall: this.state.gameWorld.gameBall,
         });
+        
       }
 
     });

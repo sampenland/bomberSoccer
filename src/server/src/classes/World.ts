@@ -15,7 +15,7 @@ export class World extends Schema {
     goalSize:number;
 
     disposed:boolean = false;
-    scaleCorrection:number;
+    static scaleCorrection:number;
 
     pEngine:Matter.Engine;
     pWorld:Matter.World;
@@ -38,12 +38,12 @@ export class World extends Schema {
         this.pEngine = Matter.Engine.create();
         this.pRunner = Matter.Runner.create();
         this.pWorld = this.pEngine.world;
-        this.pWorld.gravity.x = 0;
+        this.pWorld.gravity.x = -.05;
         this.pWorld.gravity.y = 0;
 
         this.state = state;
 
-        this.scaleCorrection = 10/24; // server gameball size / client gameball size
+        World.scaleCorrection = 10/24; // server gameball size / client gameball size
         
         // borders
         Matter.Composite.add(this.pWorld, 
@@ -61,10 +61,10 @@ export class World extends Schema {
 
         this.gameBall = new GameBall("gameBall", "gameBall", this);
         
-        this.gameBall.body = Matter.Bodies.circle(this.width/2, this.height/2, 24 * this.scaleCorrection, {
+        this.gameBall.body = Matter.Bodies.circle(this.width/2, this.height/2, 24 * World.scaleCorrection, {
             mass: this.state.settings.gameBallMass,
             frictionAir: 0,
-            restitution: .8
+            restitution: .8,
         });
         this.gameBall.update();
 

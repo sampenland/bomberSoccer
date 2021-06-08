@@ -4,7 +4,7 @@ import Player from '../gameObjects/Player';
 import RealBomb from '../gameObjects/RealBomb';
 import Colors from '../globals/Colors'
 import GameManager from '../globals/GameManager';
-import { IBombDrop, IGameBall, IGameRoomState, IPhysicsSettings, IPlayer } from '../interfaces/IClientServer';
+import { IAdjustableSettings, IBombDrop, IGameBall, IGameRoomState, IPlayer } from '../interfaces/IClientServer';
 
 export default class Game extends Phaser.Scene {
 
@@ -36,7 +36,7 @@ export default class Game extends Phaser.Scene {
 
         // sprites
         this.load.html('settings', 'html/settings.html');
-        this.load.spritesheet('player', 'sprites/player.png', {frameWidth: 14, frameHeight: 14});
+        this.load.spritesheet('player', 'sprites/player.png', {frameWidth: 20, frameHeight: 20});
         this.load.spritesheet('playerTeleport', 'sprites/playerTeleport.png', {frameWidth: 14, frameHeight: 22});
         this.load.spritesheet('moveTimer', 'sprites/moveTimer.png', {frameWidth: 8, frameHeight: 9});
         this.load.spritesheet('gameBall', 'sprites/gameBall.png', {frameWidth: 32, frameHeight: 32});
@@ -307,6 +307,7 @@ export default class Game extends Phaser.Scene {
                 var explodeTime = (this.settings.getChildByName('explodeTime') as HTMLInputElement).value;
                 var maxSpeed = (this.settings.getChildByName('maxSpeed') as HTMLInputElement).value;
                 var gameBallMass = (this.settings.getChildByName('gameBallMass') as HTMLInputElement).value;
+                var moveDelay = (this.settings.getChildByName('moveDelay') as HTMLInputElement).value;
 
                 GameManager.onlineRoom.send("adjustedSettings", {
                     blastRadiusMax:blastRadius,
@@ -314,6 +315,7 @@ export default class Game extends Phaser.Scene {
                     explodeTime:explodeTime,
                     maxSpeed,
                     gameBallMass:gameBallMass,
+                    moveDelay:moveDelay,
                 });
             }
 
@@ -326,7 +328,7 @@ export default class Game extends Phaser.Scene {
 
     }
 
-    adjustedSettings(scene:this, data:IPhysicsSettings) {
+    adjustedSettings(scene:this, data:IAdjustableSettings) {
 
         if(scene.settings == undefined) return;
 
@@ -335,6 +337,12 @@ export default class Game extends Phaser.Scene {
         (scene.settings.getChildByName('explodeTime') as HTMLInputElement).value = data.explodeTime.toString();
         (scene.settings.getChildByName('maxSpeed') as HTMLInputElement).value = data.maxSpeed.toString();
         (scene.settings.getChildByName('gameBallMass') as HTMLInputElement).value = data.gameBallMass.toString();
+        (scene.settings.getChildByName('moveDelay') as HTMLInputElement).value = data.moveDelay.toString();
+
+        Game.player.moveDelay = data.moveDelay;
+        Game.player.updateFramerate();
+        Game.opponent.moveDelay = data.moveDelay;
+        Game.opponent.updateFramerate();
 
         this.hideSettings();
 

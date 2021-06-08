@@ -1,5 +1,6 @@
 import { Schema, type } from "@colyseus/schema";
 import { Room } from "colyseus";
+import Matter from "matter-js";
 import { GameRoomState } from "../rooms/schema/GameRoomState";
 import { World } from "./World";
 
@@ -27,6 +28,8 @@ export class Player extends Schema {
     instantBombsAvailable:number = 1;
     canDropInstant:boolean = true;
 
+    body:Matter.Body;
+
     placedBombs:Array<number>;
 
     constructor(name:string, id:string) {
@@ -41,6 +44,8 @@ export class Player extends Schema {
     setGameWorld(world:World, bombsAvailable:number) {
         this.gameWorld = world;
         this.bombsAvailable = bombsAvailable;
+        this.body = Matter.Bodies.circle(this.x, this.y, 26 * World.scaleCorrection, {isStatic: true});
+        Matter.Composite.add(this.gameWorld.pWorld, this.body);
     }
 
     positionPlayers(num:number) {
@@ -54,12 +59,15 @@ export class Player extends Schema {
             this.y = this.gameWorld.centerY();
         }
 
+        Matter.Body.setPosition(this.body, {x:this.x, y:this.y});
+
     }
 
     setPosition(x:number, y:number) {
         
         this.x = x;
         this.y = y;
+        Matter.Body.setPosition(this.body, {x:this.x, y:this.y});
     }
 
     removeBomb(id:number) {

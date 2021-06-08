@@ -18,7 +18,7 @@ export default class SplashScreen extends Phaser.Scene
 
         this.cameras.main.backgroundColor = Colors.logoBackground;
         this.load.image('logo', 'spinlandIcon.png');
-        this.load.spritesheet('player', 'sprites/player.png', {frameWidth: 14, frameHeight: 14});
+        this.load.spritesheet('player', 'sprites/player.png', {frameWidth: 20, frameHeight: 20});
         this.load.spritesheet('bomb', 'sprites/bomb.png', {frameWidth: 8, frameHeight: 9});
         this.load.spritesheet('bombExplode', 'sprites/bombExplode.png', {frameWidth: 24, frameHeight: 24});
 

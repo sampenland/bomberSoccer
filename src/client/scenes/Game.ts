@@ -35,7 +35,6 @@ export default class Game extends Phaser.Scene {
         this.cameras.main.backgroundColor = Colors.gameBackground;
 
         // sprites
-        this.load.setBaseURL('assets');
         this.load.html('settings', 'html/settings.html');
         this.load.spritesheet('player', 'sprites/player.png', {frameWidth: 14, frameHeight: 14});
         this.load.spritesheet('playerTeleport', 'sprites/playerTeleport.png', {frameWidth: 14, frameHeight: 22});
@@ -60,16 +59,22 @@ export default class Game extends Phaser.Scene {
         this.controlSettings();
         let c = this.controlMouse();
 
-        GameManager.onlineRoom.send("controls", {
-            mouseX: c.mouseX,
-            mouseY: c.mouseY,
-            leftPressed: c.leftPressed,
-            rightPressed: c.rightPressed,
-            middlePressed: c.middlePressed,
-        });
-
         if(c.rightPressed || c.leftPressed || c.middlePressed) {
-            Game.player.teleport();
+           
+            if(Game.player.moves > 0)
+            {
+                
+                GameManager.onlineRoom.send("controls", {
+                    mouseX: c.mouseX,
+                    mouseY: c.mouseY,
+                    leftPressed: c.leftPressed,
+                    rightPressed: c.rightPressed,
+                    middlePressed: c.middlePressed,
+                });
+
+                Game.player.teleport();
+            }
+
         }
 
     }

@@ -22,7 +22,6 @@ export default class MainMenu extends Phaser.Scene
 
 	preload()
     {
-        this.load.setBaseURL('assets');
         this.load.html('menu', 'html/mainMenu.html');
         this.load.bitmapFont('gameFont', 'fonts/gameFont.png', 'fonts/gameFont.fnt');
 

@@ -37,6 +37,7 @@
     "colyseus": "^0.14.0",
     "cors": "^2.8.5",
     "express": "^4.16.4",
-    "matter-js": "^0.17.1"
+    "matter-js": "^0.17.1",
+    "matterjs": "^0.1.3"
   }
 }

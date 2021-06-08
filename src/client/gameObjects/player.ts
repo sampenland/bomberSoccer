@@ -9,6 +9,10 @@ export default class Player extends Phaser.GameObjects.Sprite
     label:Phaser.GameObjects.Text;
 
     bombs:number = 10;
+    
+    maxMoves:number = 2;
+    moves:number = 2;
+    resetMovesTime:number = 3000;
 
     constructor(scene:Phaser.Scene){
 
@@ -29,7 +33,7 @@ export default class Player extends Phaser.GameObjects.Sprite
             repeat: 0
         });
 
-        this.label = scene.add.text(-100, -100, '', { fontFamily: 'Arial', fontSize:'10px', color:"#cbffd8" }).setOrigin(0.5, 0);       
+        this.label = scene.add.text(-100, -100, '', { fontFamily: 'webFont', fontSize:'12px', color:"#cbffd8" }).setOrigin(0.5, 0);       
 
     }
 
@@ -43,6 +47,14 @@ export default class Player extends Phaser.GameObjects.Sprite
     }
 
     teleport() {
+
+        this.moves--;
+
+        if(this.moves == 0) {
+            setTimeout(() => {
+                this.moves = this.maxMoves;
+            }, this.resetMovesTime);
+        }
 
         this.anims.play("teleport");
         this.on('animationcomplete', () => {

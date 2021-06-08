@@ -14,7 +14,6 @@ export default class SplashScreen extends Phaser.Scene
 
 	preload()
     {
-        this.load.setBaseURL('assets');
         this.load.html('login', 'html/splashScreen.html');
 
         this.cameras.main.backgroundColor = Colors.logoBackground;

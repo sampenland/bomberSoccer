@@ -46,6 +46,7 @@ export class World extends Schema {
         World.scaleCorrection = 10/24; // server gameball size / client gameball size
         
         // borders
+        const goalSep = (this.height - this.goalSize - 2*this.borderSize)/2;
         Matter.Composite.add(this.pWorld, 
             Matter.Bodies.rectangle(this.width/2, this.borderSize, this.width, this.borderSize, { isStatic: true }) // top
         );
@@ -53,10 +54,34 @@ export class World extends Schema {
             Matter.Bodies.rectangle(this.width/2, this.height - this.borderSize, this.width, this.borderSize, { isStatic: true }) // bottom
         );
         Matter.Composite.add(this.pWorld, 
-            Matter.Bodies.rectangle(0, this.height/2, this.borderSize, this.height, { isStatic: true }) // left
+            Matter.Bodies.rectangle(this.borderSize/2, 
+                this.borderSize + goalSep/3, 
+                this.borderSize, goalSep, { isStatic: true }) // left top
         );
         Matter.Composite.add(this.pWorld, 
-            Matter.Bodies.rectangle(this.width - this.borderSize, this.height/2, this.borderSize, this.height, { isStatic: true }) // right
+            Matter.Bodies.rectangle(this.borderSize/2, 
+                this.height - this.borderSize - goalSep/3, 
+                this.borderSize, 
+                goalSep, 
+                { isStatic: true }) // left bottom
+        );
+        Matter.Composite.add(this.pWorld, 
+            Matter.Bodies.rectangle(-this.borderSize, this.height/2, this.borderSize, this.goalSize, { isStatic: true, label:"goal-0" }) // goal left
+        );
+        Matter.Composite.add(this.pWorld, 
+            Matter.Bodies.rectangle(this.width - this.borderSize/2, 
+                this.borderSize + goalSep/3, 
+                this.borderSize, goalSep, { isStatic: true }) // right top
+        );
+        Matter.Composite.add(this.pWorld, 
+            Matter.Bodies.rectangle(this.width - this.borderSize/2, 
+                this.height - this.borderSize - goalSep/3, 
+                this.borderSize, 
+                goalSep, 
+                { isStatic: true }) // right bottom
+        );
+        Matter.Composite.add(this.pWorld, 
+            Matter.Bodies.rectangle(this.width + this.borderSize, this.height/2, this.borderSize, this.goalSize, { isStatic: true, label:"goal-1" }) // goal right
         );
 
         this.gameBall = new GameBall("gameBall", "gameBall", this);
@@ -65,6 +90,7 @@ export class World extends Schema {
             mass: this.state.settings.gameBallMass,
             frictionAir: 0,
             restitution: .8,
+            label:"gameBall",
         });
         this.gameBall.update();
 
@@ -72,6 +98,42 @@ export class World extends Schema {
 
         Matter.Runner.run(this.pRunner, this.pEngine);
         Matter.Events.on(this.pRunner, "tick", this.afterUpdate.bind(this, this));
+
+        Matter.Events.on(this.pEngine, "collisionStart", (event) =>{
+
+            const pairs = event.pairs;
+
+            pairs.forEach((collision) => {
+
+                const bodyA = collision.bodyA;
+                const bodyB = collision.bodyB;
+
+                if(bodyA.label == "gameBall" && (bodyB.label == "goal-0" || bodyB.label == "goal-1"))
+                {
+                    if(bodyB.label == "goal-0")
+                    {
+                        state.players[0].scoreGoal();
+                    }
+                    else
+                    {
+                        state.players[1].scoreGoal();
+                    }
+                }
+                else if(bodyB.label == "gameBall" && (bodyA.label == "goal-0" || bodyA.label == "goal-1"))
+                {
+                    if(bodyA.label == "goal-0")
+                    {
+                        state.players[0].scoreGoal();
+                    }
+                    else
+                    {
+                        state.players[1].scoreGoal();
+                    }
+                }
+
+            });
+
+        });
 
     }
 

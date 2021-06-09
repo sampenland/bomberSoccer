@@ -40,6 +40,12 @@ export class GameBall extends Schema {
     
     }
 
+    reset() {
+        Matter.Body.setPosition(this.body, {x: this.gameWorld.centerX(), y: this.gameWorld.centerY()});
+        Matter.Body.setVelocity(this.body, {x:0, y:0});
+        this.update();
+    }
+
     applyImpulse(bomb:IBomb){
         
         let dir:{x:number, y:number} = {x: 0, y: 0};

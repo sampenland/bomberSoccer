@@ -55,6 +55,7 @@ export interface IPlayer {
     angle:number;
     playerNumber:number;
     gameWorld:IWorld;
+    score:number;
 
 }
 

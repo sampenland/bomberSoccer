@@ -25,6 +25,9 @@ export class Player extends Schema {
     bombsAvailable:number;
 
     @type("number")
+    score:number = 0;
+
+    @type("number")
     instantBombsAvailable:number = 1;
     canDropInstant:boolean = true;
 
@@ -61,6 +64,11 @@ export class Player extends Schema {
 
         Matter.Body.setPosition(this.body, {x:this.x, y:this.y});
 
+    }
+
+    scoreGoal() {
+        this.gameWorld.gameBall.reset();
+        this.score++;
     }
 
     setPosition(x:number, y:number) {

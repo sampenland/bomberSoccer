@@ -21,6 +21,9 @@ export default class Game extends Phaser.Scene {
     rightClickDown:boolean = false;
     middleClickDown:boolean = false;
 
+    playerOneScore:Phaser.GameObjects.Text | undefined;
+    playerTwoScore:Phaser.GameObjects.Text | undefined;
+
     tDown:boolean = false;
 
     constructor() {
@@ -233,6 +236,9 @@ export default class Game extends Phaser.Scene {
 
         //Game.player.angle = player.angle;
         Game.player.setPosition(player.x, player.y);
+        
+        if(this.playerOneScore)
+            this.playerOneScore.setText("Score: " + player.score);
 
     }
 
@@ -240,6 +246,9 @@ export default class Game extends Phaser.Scene {
 
         //Game.opponent.angle = player.angle;
         Game.opponent.setPosition(player.x, player.y);
+
+        if(this.playerTwoScore)
+            this.playerTwoScore.setText("Score: " + player.score);
 
     }
 
@@ -284,6 +293,9 @@ export default class Game extends Phaser.Scene {
         Game.opponent.tint = Colors.lightGreen.color32;
 
         Game.gameBall = new GameBall(this);
+
+        this.playerOneScore = this.add.text(15, 15, '', { fontFamily: 'webFont', fontSize:'12px', color:"#cbffd8"}).setOrigin(0, 0).setText("Score: 0");       
+        this.playerTwoScore = this.add.text(GameManager.width - 15, 15, '', { fontFamily: 'webFont', fontSize:'12px', color:"#cbffd8" }).setOrigin(1, 0).setText("Score: 0");       
 
         this.createSettings();
 

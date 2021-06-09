@@ -1,4 +1,5 @@
 import { Room, Client } from "colyseus";
+import Matter from "matter-js";
 import { Player } from "../classes/Player";
 import { World } from "../classes/World";
 import { IAdjustableSettings, IControls, IGameSettings } from "../interfaces/IClientServer";
@@ -62,10 +63,7 @@ export class GameRoom extends Room<GameRoomState> {
     });
 
     this.onMessage("resetBall", () => {
-      this.state.gameWorld.gameBall.body.velocity = {x:0,y:0};
-      this.state.gameWorld.gameBall.body.force = {x:0, y:0};
-      this.state.gameWorld.gameBall.body.position = {x: this.state.gameWorld.width/2, y: this.state.gameWorld.height/2};
-      this.state.gameWorld.gameBall.update();
+      this.state.gameWorld.gameBall.reset();
     });
 
     this.onMessage("removeBomb", (client:Client, message:{playerId:string, bombId:number}) => {

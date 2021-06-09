@@ -29,5 +29,6 @@ export interface IAdjustableSettings {
     bombsAvailable:number;
     instantBombReset:number;
     moveDelay:number;
+    solidPlayers:number;
 
 }

@@ -213,6 +213,17 @@ export default class Game extends Phaser.Scene {
     
         state.players.forEach((player) => {
 
+            if(player.playerNumber == 1)
+            {
+                if(this.playerOneScore)
+                this.playerOneScore.setText("Score: " + player.score);
+            }
+            else
+            {
+                if(this.playerTwoScore)
+                this.playerTwoScore.setText("Score: " + player.score);
+            }
+
             if(player.id == GameManager.onlineRoom.sessionId) {
                 scene.thisPlayerUpdate(player);
             }
@@ -235,10 +246,7 @@ export default class Game extends Phaser.Scene {
     thisPlayerUpdate(player:IPlayer) {
 
         //Game.player.angle = player.angle;
-        Game.player.setPosition(player.x, player.y);
-        
-        if(this.playerOneScore)
-            this.playerOneScore.setText("Score: " + player.score);
+        Game.player.setPosition(player.x, player.y);        
 
     }
 
@@ -247,8 +255,7 @@ export default class Game extends Phaser.Scene {
         //Game.opponent.angle = player.angle;
         Game.opponent.setPosition(player.x, player.y);
 
-        if(this.playerTwoScore)
-            this.playerTwoScore.setText("Score: " + player.score);
+        
 
     }
 
@@ -294,8 +301,8 @@ export default class Game extends Phaser.Scene {
 
         Game.gameBall = new GameBall(this);
 
-        this.playerOneScore = this.add.text(15, 15, '', { fontFamily: 'webFont', fontSize:'12px', color:"#cbffd8"}).setOrigin(0, 0).setText("Score: 0");       
-        this.playerTwoScore = this.add.text(GameManager.width - 15, 15, '', { fontFamily: 'webFont', fontSize:'12px', color:"#cbffd8" }).setOrigin(1, 0).setText("Score: 0");       
+        this.playerOneScore = this.add.text(15, -GameManager.height/2 + GameManager.borderSize + 2, '', { fontFamily: 'webFont', fontSize:'12px', color:"#cbffd8"}).setOrigin(0, 0).setText("Score: 0");       
+        this.playerTwoScore = this.add.text(GameManager.width - 15, -GameManager.height/2 + GameManager.borderSize + 2, '', { fontFamily: 'webFont', fontSize:'12px', color:"#cbffd8" }).setOrigin(1, 0).setText("Score: 0");       
 
         this.createSettings();
 
@@ -320,14 +327,16 @@ export default class Game extends Phaser.Scene {
                 var maxSpeed = (this.settings.getChildByName('maxSpeed') as HTMLInputElement).value;
                 var gameBallMass = (this.settings.getChildByName('gameBallMass') as HTMLInputElement).value;
                 var moveDelay = (this.settings.getChildByName('moveDelay') as HTMLInputElement).value;
+                var solidPlayers = (this.settings.getChildByName('solidPlayers') as HTMLInputElement).value;
 
                 GameManager.onlineRoom.send("adjustedSettings", {
                     blastRadiusMax:blastRadius,
                     blastMagnitude:blastMagnitude,
                     explodeTime:explodeTime,
-                    maxSpeed,
+                    maxSpeed:maxSpeed,
                     gameBallMass:gameBallMass,
                     moveDelay:moveDelay,
+                    solidPlayers:solidPlayers
                 });
             }
 
@@ -350,6 +359,7 @@ export default class Game extends Phaser.Scene {
         (scene.settings.getChildByName('maxSpeed') as HTMLInputElement).value = data.maxSpeed.toString();
         (scene.settings.getChildByName('gameBallMass') as HTMLInputElement).value = data.gameBallMass.toString();
         (scene.settings.getChildByName('moveDelay') as HTMLInputElement).value = data.moveDelay.toString();
+        (scene.settings.getChildByName('solidPlayers') as HTMLInputElement).value = data.solidPlayers.toString();
 
         Game.player.moveDelay = data.moveDelay;
         Game.player.updateFramerate();

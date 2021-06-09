@@ -13,6 +13,9 @@ export class Player extends Schema {
     id:string;
 
     @type("number")
+    playerNumber:number = -1;
+
+    @type("number")
     x:number;
 
     @type("number")
@@ -49,9 +52,16 @@ export class Player extends Schema {
         this.bombsAvailable = bombsAvailable;
         this.body = Matter.Bodies.circle(40, 90, 26 * World.scaleCorrection, {isStatic: true});
         Matter.Composite.add(this.gameWorld.pWorld, this.body);
+        this.changeSolid(this.gameWorld.state.settings.solidPlayers == 1);
+    }
+
+    changeSolid(isSolid:boolean) {
+        this.body.isSensor = !isSolid;
     }
 
     positionPlayers(num:number) {
+        
+        this.playerNumber = num;
         
         if(num == 0) {
             this.x = 40;

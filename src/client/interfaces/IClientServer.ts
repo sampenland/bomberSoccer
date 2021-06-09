@@ -22,7 +22,7 @@ export interface IAdjustableSettings {
     maxSpeed:number;
     gameBallMass:number;
     moveDelay:number;
-
+    solidPlayers:number;
 }
 
 export interface IGameBall {

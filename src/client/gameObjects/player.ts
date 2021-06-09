@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import GameManager from '../globals/GameManager';
 
 export default class Player extends Phaser.GameObjects.Sprite
 {
@@ -56,7 +57,7 @@ export default class Player extends Phaser.GameObjects.Sprite
 
     update() 
     {
-        this.label.setPosition(this.x, this.y - 20);
+        this.label.setPosition(this.x, this.y - GameManager.height/2 - this.height*1.5);
         this.moveTimer.setPosition(this.x - this.width * 0.75, this.y);
     }
 

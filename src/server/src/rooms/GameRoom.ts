@@ -15,6 +15,11 @@ export class GameRoom extends Room<GameRoomState> {
     this.onMessage("adjustedSettings", (client:Client, settings:IAdjustableSettings) => {
 
       this.state.settings = settings;
+
+      this.state.players.forEach((p) => {
+        p.changeSolid(settings.solidPlayers == 1);
+      });
+
       this.broadcast("adjustedSettings", settings);
 
     });
@@ -34,7 +39,8 @@ export class GameRoom extends Room<GameRoomState> {
           gameBallMass: 4,
           bombsAvailable: gameSettings.bombsAvailable,
           instantBombReset: 5000,
-          moveDelay:1500
+          moveDelay:1500,
+          solidPlayers: 1
         };
 
         this.state.gameWorld = new World(gameSettings.gameSize.width, gameSettings.gameSize.height,gameSettings.borderSize, gameSettings.goalSize, this.state);

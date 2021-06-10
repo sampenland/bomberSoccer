@@ -39,6 +39,7 @@ export default class Game extends Phaser.Scene {
 
         // sprites
         this.load.html('settings', 'html/settings.html');
+        this.load.html('playerLabel', 'html/playerLabel.html');
         this.load.spritesheet('player', 'sprites/player.png', {frameWidth: 20, frameHeight: 20});
         this.load.spritesheet('playerTeleport', 'sprites/playerTeleport.png', {frameWidth: 14, frameHeight: 22});
         this.load.spritesheet('moveTimer', 'sprites/moveTimer.png', {frameWidth: 8, frameHeight: 9});

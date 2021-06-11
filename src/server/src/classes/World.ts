@@ -84,7 +84,7 @@ export class World extends Schema {
             Matter.Bodies.rectangle(this.width + this.borderSize, this.height/2, this.borderSize, this.goalSize, { isStatic: true, label:"goal-1" }) // goal right
         );
 
-        this.gameBall = new GameBall("gameBall", "gameBall", this);
+        this.gameBall = new GameBall("gameBall", "gameBall", this, 24 * World.scaleCorrection);
         
         this.gameBall.body = Matter.Bodies.circle(this.width/2, this.height/2, 24 * World.scaleCorrection, {
             mass: this.state.settings.gameBallMass,

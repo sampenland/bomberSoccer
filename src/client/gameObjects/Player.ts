@@ -4,8 +4,12 @@ import GameManager from '../globals/GameManager';
 export default class Player extends Phaser.GameObjects.Sprite
 {
 
+    static debug:boolean = false;
+
     playerNum:number = -1;
     id:string | undefined;
+    colliderRadius:number = 10;
+    drawer:Phaser.GameObjects.Graphics;
 
     label:Phaser.GameObjects.DOMElement;
 
@@ -21,6 +25,9 @@ export default class Player extends Phaser.GameObjects.Sprite
 
         super(scene, -100, -100, 'player');
         this.scene.add.existing(this);
+
+        this.drawer = scene.add.graphics();
+        this.drawer.lineStyle(2, 0xcbffd8, 0.75);
 
         this.label = scene.add.dom(0, 0).createFromCache('playerLabel');
 
@@ -60,6 +67,16 @@ export default class Player extends Phaser.GameObjects.Sprite
     {
         this.label.setPosition(this.x, this.y - this.height);
         this.moveTimer.setPosition(this.x - this.width * 0.75, this.y);
+
+    }
+
+    updateDebugCollider() {
+
+        if(Player.debug) {
+            this.drawer.clear();
+            this.drawer.strokeCircle(this.x, this.y, this.colliderRadius);
+        }
+
     }
 
     updateFramerate() {

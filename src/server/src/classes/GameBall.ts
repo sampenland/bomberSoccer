@@ -21,13 +21,16 @@ export class GameBall extends Schema {
 
     gameWorld:World;
     body:Matter.Body;
+    @type("number")
+    radius:number;
 
-    constructor(name:string, id:string, worldR:World) {
+    constructor(name:string, id:string, worldR:World, radius:number) {
 
         super();
         this.name = name;
         this.id = id;
         this.gameWorld = worldR;
+        this.radius = radius;
 
         console.log("created gameball");
 

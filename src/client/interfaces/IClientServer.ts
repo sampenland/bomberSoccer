@@ -1,3 +1,16 @@
+export interface IRect {
+    x:number, 
+    y:number, 
+    width:number, 
+    height:number
+}
+
+export interface ICircle {
+    x:number;
+    y:number;
+    radius:number;
+}
+
 export interface IControls {
     tryDropBomb:boolean;
     mouseX:number;
@@ -31,6 +44,7 @@ export interface IGameBall {
     x:number;
     y:number;
     gameWorld:IWorld;
+    radius:number;
 }
 
 export interface IBombDrop {
@@ -56,6 +70,7 @@ export interface IPlayer {
     playerNumber:number;
     gameWorld:IWorld;
     score:number;
+    radius:number;
 
 }
 

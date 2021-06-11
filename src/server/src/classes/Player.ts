@@ -35,6 +35,8 @@ export class Player extends Schema {
     canDropInstant:boolean = true;
 
     body:Matter.Body;
+    @type("number")
+    radius:number;
 
     placedBombs:Array<number>;
 
@@ -47,10 +49,11 @@ export class Player extends Schema {
 
     }
 
-    setGameWorld(world:World, bombsAvailable:number) {
+    setGameWorld(world:World, bombsAvailable:number, playerColliderRadius:number) {
         this.gameWorld = world;
         this.bombsAvailable = bombsAvailable;
-        this.body = Matter.Bodies.circle(40, 90, 26 * World.scaleCorrection, {isStatic: true});
+        this.body = Matter.Bodies.circle(40, 90, playerColliderRadius * World.scaleCorrection, {isStatic: true});
+        this.radius = 26 * World.scaleCorrection;
         Matter.Composite.add(this.gameWorld.pWorld, this.body);
         this.changeSolid(this.gameWorld.state.settings.solidPlayers == 1);
     }

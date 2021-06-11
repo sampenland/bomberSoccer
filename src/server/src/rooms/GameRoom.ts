@@ -47,7 +47,7 @@ export class GameRoom extends Room<GameRoomState> {
 
         this.broadcast("adjustedSettings", this.state.settings);
 
-        this.state.players[0].setGameWorld(this.state.gameWorld, gameSettings.bombsAvailable);
+        this.state.players[0].setGameWorld(this.state.gameWorld, gameSettings.bombsAvailable, 26);
 
         this.state.players[0].positionPlayers(0);
         
@@ -55,7 +55,7 @@ export class GameRoom extends Room<GameRoomState> {
           this.state.players.push(new Player("CPU", "cpu"));
         }
 
-        this.state.players[1].setGameWorld(this.state.gameWorld, gameSettings.bombsAvailable);
+        this.state.players[1].setGameWorld(this.state.gameWorld, gameSettings.bombsAvailable, 26);
         this.state.players[1].positionPlayers(1);
 
         this.broadcast("startGame", {

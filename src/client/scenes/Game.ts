@@ -61,24 +61,28 @@ export default class Game extends Phaser.Scene {
 
     controls(){
 
+        Game.gameBall.update();
+
         this.controlSettings();
         let c = this.controlMouse();
 
         if(c.rightPressed || c.leftPressed || c.middlePressed) {
            
+            const correctedJumpPos = Game.gameBall.findBestPosition(c.mouseX, c.mouseY);
+            
             if(Game.player.moves > 0)
-            {
-                
-                GameManager.onlineRoom.send("controls", {
-                    mouseX: c.mouseX,
-                    mouseY: c.mouseY,
-                    leftPressed: c.leftPressed,
-                    rightPressed: c.rightPressed,
-                    middlePressed: c.middlePressed,
-                });
-
-                Game.player.teleport();
-            }
+                {
+                    
+                    GameManager.onlineRoom.send("controls", {
+                        mouseX: correctedJumpPos.x,
+                        mouseY: correctedJumpPos.y,
+                        leftPressed: c.leftPressed,
+                        rightPressed: c.rightPressed,
+                        middlePressed: c.middlePressed,
+                    });
+    
+                    Game.player.teleport();
+                }
 
         }
 
@@ -241,22 +245,25 @@ export default class Game extends Phaser.Scene {
 
         if(gameBall == undefined) return;
         Game.gameBall.setPosition(gameBall.x, gameBall.y);
+        Game.gameBall.radius = gameBall.radius + 4;
 
     }
 
     thisPlayerUpdate(player:IPlayer) {
 
         //Game.player.angle = player.angle;
-        Game.player.setPosition(player.x, player.y);        
+        Game.player.colliderRadius = player.radius;
+        Game.player.setPosition(player.x, player.y); 
+        Game.player.updateDebugCollider();
 
     }
 
     otherPlayerUpdate(player:IPlayer) {
 
         //Game.opponent.angle = player.angle;
+        Game.opponent.colliderRadius = player.radius;
         Game.opponent.setPosition(player.x, player.y);
-
-        
+        Game.opponent.updateDebugCollider();
 
     }
 

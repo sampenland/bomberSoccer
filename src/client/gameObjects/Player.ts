@@ -13,7 +13,7 @@ export default class Player extends Phaser.GameObjects.Sprite
 
     label:Phaser.GameObjects.DOMElement;
 
-    bombs:number = 10;
+    bombs:number = 0;
     
     maxMoves:number = 2;
     moves:number = 2;
@@ -59,11 +59,12 @@ export default class Player extends Phaser.GameObjects.Sprite
     }
 
     setPlayerName(name:string) {
-        (this.label.getChildByID("playerLabel") as HTMLSpanElement).innerHTML = name;
+        this.name = name;
     }
 
     update() 
     {
+        (this.label.getChildByID("playerLabel") as HTMLSpanElement).innerHTML = this.name + " " + this.bombs;
         this.label.setPosition(this.x, this.y - this.height);
         this.moveTimer.setPosition(this.x - this.width * 0.75, this.y);
 

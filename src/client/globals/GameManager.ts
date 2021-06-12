@@ -15,6 +15,8 @@ export default class GameManager {
     public static playerName:string;
     public static playerNum:number;
 
+    public static solidPlayers:boolean = false;
+
     public static opponentName:string | undefined = undefined;
     public static opponentId:string | undefined = undefined;
     public static opponentNum:number;

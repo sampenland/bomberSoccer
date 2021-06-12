@@ -120,9 +120,7 @@ export class Player extends Schema {
                     this.bombsAvailable--;
                 }
             }
-        }
-
-        
+        }        
 
         let hasId = false;
         let id = -1;

@@ -21,8 +21,8 @@ export default class Game extends Phaser.Scene {
     rightClickDown:boolean = false;
     middleClickDown:boolean = false;
 
-    playerOneScore:Phaser.GameObjects.Text | undefined;
-    playerTwoScore:Phaser.GameObjects.Text | undefined;
+    playerOneScore:Phaser.GameObjects.DOMElement | undefined;
+    playerTwoScore:Phaser.GameObjects.DOMElement | undefined;
 
     tDown:boolean = false;
 
@@ -72,7 +72,11 @@ export default class Game extends Phaser.Scene {
 
         if(c.rightPressed || c.leftPressed || c.middlePressed) {
            
-            const correctedJumpPos = Game.gameBall.findBestPosition(c.mouseX, c.mouseY);
+            let correctedJumpPos = {x:c.mouseX, y:c.mouseY};
+
+            if(GameManager.solidPlayers) {
+                correctedJumpPos = Game.gameBall.findBestPosition(c.mouseX, c.mouseY);
+            }
             
             if(Game.player.moves > 0)
                 {
@@ -202,7 +206,7 @@ export default class Game extends Phaser.Scene {
                 borderSize:GameManager.borderSize,
                 goalSize:GameManager.goalSize,
                 testGame: GameManager.playerName == GameManager.testName,
-                bombsAvailable: -1,
+                bombsAvailable: 6,
 
             });
             
@@ -225,12 +229,12 @@ export default class Game extends Phaser.Scene {
             if(player.playerNumber == 1)
             {
                 if(this.playerOneScore)
-                this.playerOneScore.setText("Score: " + player.score);
+                this.playerOneScore.getChildByID("text").innerHTML = ("Score: " + player.score);
             }
             else
             {
                 if(this.playerTwoScore)
-                this.playerTwoScore.setText("Score: " + player.score);
+                this.playerTwoScore.getChildByID("text").innerHTML = ("Score: " + player.score);
             }
 
             if(player.id == GameManager.onlineRoom.sessionId) {
@@ -258,6 +262,7 @@ export default class Game extends Phaser.Scene {
 
         //Game.player.angle = player.angle;
         Game.player.colliderRadius = player.radius;
+        Game.player.bombs = player.bombsAvailable;
         Game.player.setPosition(player.x, player.y); 
         Game.player.updateDebugCollider();
 
@@ -267,6 +272,7 @@ export default class Game extends Phaser.Scene {
 
         //Game.opponent.angle = player.angle;
         Game.opponent.colliderRadius = player.radius;
+        Game.opponent.bombs = player.bombsAvailable;
         Game.opponent.setPosition(player.x, player.y);
         Game.opponent.updateDebugCollider();
 
@@ -314,9 +320,9 @@ export default class Game extends Phaser.Scene {
 
         Game.gameBall = new GameBall(this);
 
-        this.playerOneScore = this.add.text(15, -GameManager.height/2 + GameManager.borderSize + 2, '', { fontFamily: 'webFont', fontSize:'12px', color:"#cbffd8"}).setOrigin(0, 0).setText("Score: 0");       
-        this.playerTwoScore = this.add.text(GameManager.width - 15, -GameManager.height/2 + GameManager.borderSize + 2, '', { fontFamily: 'webFont', fontSize:'12px', color:"#cbffd8" }).setOrigin(1, 0).setText("Score: 0");       
-
+        this.playerOneScore = this.add.dom(15, 0).createFromCache('text').setOrigin(0, 0);
+        this.playerTwoScore = this.add.dom(GameManager.width - 45, 0).createFromCache('text').setOrigin(1, 0);
+        
         this.createSettings();
 
         this.requestStart();
@@ -355,9 +361,9 @@ export default class Game extends Phaser.Scene {
                 });
             }
 
-            if(event.target.name === "resetBallButton")
+            if(event.target.name === "resetButton")
             {
-                GameManager.onlineRoom.send("resetBall");
+                GameManager.onlineRoom.send("reset");
             }
 
         });
@@ -375,6 +381,8 @@ export default class Game extends Phaser.Scene {
         (scene.settings.getChildByName('gameBallMass') as HTMLInputElement).value = data.gameBallMass.toString();
         (scene.settings.getChildByName('moveDelay') as HTMLInputElement).value = data.moveDelay.toString();
         (scene.settings.getChildByName('solidPlayers') as HTMLInputElement).value = data.solidPlayers.toString();
+
+        GameManager.solidPlayers = data.solidPlayers.toString() == "1";
 
         (scene.settings.getChildByName('goalSize') as HTMLInputElement).value = data.goalSize.toString();
         this.updateGoals(data.goalSize);

@@ -74,6 +74,7 @@ export interface IPlayer {
     gameWorld:IWorld;
     score:number;
     radius:number;
+    bombsAvailable:number;
 
 }
 

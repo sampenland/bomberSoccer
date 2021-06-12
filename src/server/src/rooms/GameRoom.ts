@@ -71,8 +71,13 @@ export class GameRoom extends Room<GameRoomState> {
 
     });
 
-    this.onMessage("resetBall", () => {
+    this.onMessage("reset", () => {
       this.state.gameWorld.gameBall.reset();
+
+      this.state.players.forEach( (p) => {
+        p.bombsAvailable = this.state.settings.bombsAvailable;
+      });
+
     });
 
     this.onMessage("removeBomb", (client:Client, message:{playerId:string, bombId:number}) => {

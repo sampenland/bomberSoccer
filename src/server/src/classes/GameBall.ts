@@ -19,6 +19,11 @@ export class GameBall extends Schema {
     @type("number")
     y:number;
 
+    @type("number")
+    velocityX:number;
+    @type("number")
+    velocityY:number;
+
     gameWorld:World;
     body:Matter.Body;
     @type("number")
@@ -31,6 +36,8 @@ export class GameBall extends Schema {
         this.id = id;
         this.gameWorld = worldR;
         this.radius = radius;
+        this.velocityX = 0;
+        this.velocityY = 0;
 
         console.log("created gameball");
 
@@ -40,6 +47,9 @@ export class GameBall extends Schema {
 
         this.x = this.body.position.x;
         this.y = this.body.position.y;
+
+        this.velocityX = this.body.velocity.x;
+        this.velocityY = this.body.velocity.y;
     
     }
 

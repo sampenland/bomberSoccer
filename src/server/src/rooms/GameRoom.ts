@@ -14,6 +14,8 @@ export class GameRoom extends Room<GameRoomState> {
 
     this.onMessage("adjustedSettings", (client:Client, settings:IAdjustableSettings) => {
 
+      this.state.gameWorld.updateGoals(settings.goalSize);
+
       this.state.settings = settings;
 
       this.state.players.forEach((p) => {
@@ -39,8 +41,9 @@ export class GameRoom extends Room<GameRoomState> {
           gameBallMass: 4,
           bombsAvailable: gameSettings.bombsAvailable,
           instantBombReset: 5000,
-          moveDelay:1500,
-          solidPlayers: 1
+          moveDelay:0,
+          solidPlayers: 0,
+          goalSize:gameSettings.goalSize
         };
 
         this.state.gameWorld = new World(gameSettings.gameSize.width, gameSettings.gameSize.height,gameSettings.borderSize, gameSettings.goalSize, this.state);

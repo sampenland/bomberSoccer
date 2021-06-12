@@ -36,6 +36,7 @@ export interface IAdjustableSettings {
     gameBallMass:number;
     moveDelay:number;
     solidPlayers:number;
+    goalSize:number;
 }
 
 export interface IGameBall {
@@ -45,6 +46,8 @@ export interface IGameBall {
     y:number;
     gameWorld:IWorld;
     radius:number;
+    velocityX:number;
+    velocityY:number;
 }
 
 export interface IBombDrop {

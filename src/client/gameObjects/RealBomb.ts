@@ -6,6 +6,9 @@ export default class RealBomb extends Phaser.GameObjects.Sprite {
 
     id:number;
     playerId:string;
+    drawer:Phaser.GameObjects.Graphics;
+    explodeSizeStart:number = 12;
+    explodeDuration:number = 100;
 
     constructor(scene:Phaser.Scene, x:number, y:number, id:number, playerId:string)
     {
@@ -13,6 +16,9 @@ export default class RealBomb extends Phaser.GameObjects.Sprite {
 
         this.id = id;
         this.playerId = playerId;
+
+        this.drawer = scene.add.graphics();
+        this.drawer.lineStyle(1, 0x4e7f7d, 1);
 
         this.anims.create({
             key: 'bombBurning',
@@ -34,6 +40,23 @@ export default class RealBomb extends Phaser.GameObjects.Sprite {
     }
 
     explode(scale:number) {
+        
+        this.scene.tweens.addCounter({
+            to: this.explodeSizeStart * scale,
+            from: this.explodeSizeStart,
+            duration: this.explodeDuration,
+            onUpdate: (v) => {
+                this.drawer.clear();
+                this.drawer.fillCircle(this.x, this.y, v.getValue());
+            },
+            onComplete: () => {
+                this.drawer.clear();
+                this.destroy();
+            }
+        });
+
+        return;
+        // old bomb explosion
 
         if(this.anims != undefined) {
             this.scale = scale;

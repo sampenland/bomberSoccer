@@ -26,6 +26,9 @@ export default class Game extends Phaser.Scene {
 
     tDown:boolean = false;
 
+    leftGoal:Phaser.GameObjects.Rectangle | undefined;
+    rightGoal:Phaser.GameObjects.Rectangle | undefined;
+
     constructor() {
 
         super('game');
@@ -40,6 +43,7 @@ export default class Game extends Phaser.Scene {
         // sprites
         this.load.html('settings', 'html/settings.html');
         this.load.html('playerLabel', 'html/playerLabel.html');
+        this.load.html('text', 'html/text.html');
         this.load.spritesheet('player', 'sprites/player.png', {frameWidth: 20, frameHeight: 20});
         this.load.spritesheet('playerTeleport', 'sprites/playerTeleport.png', {frameWidth: 14, frameHeight: 22});
         this.load.spritesheet('moveTimer', 'sprites/moveTimer.png', {frameWidth: 8, frameHeight: 9});
@@ -246,6 +250,7 @@ export default class Game extends Phaser.Scene {
         if(gameBall == undefined) return;
         Game.gameBall.setPosition(gameBall.x, gameBall.y);
         Game.gameBall.radius = gameBall.radius + 4;
+        Game.gameBall.velocity = {x:gameBall.velocityX, y:gameBall.velocityY};
 
     }
 
@@ -294,8 +299,8 @@ export default class Game extends Phaser.Scene {
         let left = this.add.rectangle(0, 0, GameManager.borderSize, GameManager.height, Colors.darkGray.color32).setOrigin(0, 0);
         let right = this.add.rectangle(GameManager.width - GameManager.borderSize, 0, GameManager.borderSize, GameManager.height, Colors.darkGray.color32).setOrigin(0, 0);
 
-        let leftGoal = this.add.rectangle(0, GameManager.height/2 - GameManager.goalSize/2, GameManager.borderSize, GameManager.goalSize, Colors.white.color32).setOrigin(0, 0);
-        let rightGoal = this.add.rectangle(GameManager.width - GameManager.borderSize, GameManager.height/2 - GameManager.goalSize/2, GameManager.borderSize, GameManager.goalSize, Colors.white.color32).setOrigin(0, 0);
+        this.leftGoal = this.add.rectangle(0, GameManager.height/2 - GameManager.goalSize/2, GameManager.borderSize, GameManager.goalSize, Colors.white.color32).setOrigin(0, 0);
+        this.rightGoal = this.add.rectangle(GameManager.width - GameManager.borderSize, GameManager.height/2 - GameManager.goalSize/2, GameManager.borderSize, GameManager.goalSize, Colors.white.color32).setOrigin(0, 0);
 
         Game.player = new Player(this);
         Game.player.setPlayerName(GameManager.playerName);
@@ -336,6 +341,7 @@ export default class Game extends Phaser.Scene {
                 var gameBallMass = (this.settings.getChildByName('gameBallMass') as HTMLInputElement).value;
                 var moveDelay = (this.settings.getChildByName('moveDelay') as HTMLInputElement).value;
                 var solidPlayers = (this.settings.getChildByName('solidPlayers') as HTMLInputElement).value;
+                var goalSize = (this.settings.getChildByName('goalSize') as HTMLInputElement).value;
 
                 GameManager.onlineRoom.send("adjustedSettings", {
                     blastRadiusMax:blastRadius,
@@ -344,7 +350,8 @@ export default class Game extends Phaser.Scene {
                     maxSpeed:maxSpeed,
                     gameBallMass:gameBallMass,
                     moveDelay:moveDelay,
-                    solidPlayers:solidPlayers
+                    solidPlayers:solidPlayers,
+                    goalSize:goalSize
                 });
             }
 
@@ -369,12 +376,26 @@ export default class Game extends Phaser.Scene {
         (scene.settings.getChildByName('moveDelay') as HTMLInputElement).value = data.moveDelay.toString();
         (scene.settings.getChildByName('solidPlayers') as HTMLInputElement).value = data.solidPlayers.toString();
 
+        (scene.settings.getChildByName('goalSize') as HTMLInputElement).value = data.goalSize.toString();
+        this.updateGoals(data.goalSize);
+
         Game.player.moveDelay = data.moveDelay;
         Game.player.updateFramerate();
         Game.opponent.moveDelay = data.moveDelay;
         Game.opponent.updateFramerate();
 
         this.hideSettings();
+
+    }
+
+    updateGoals(goalSize:number) {
+
+        if(this.rightGoal != undefined && this.leftGoal != undefined){
+            this.leftGoal.height = goalSize;
+            this.rightGoal.height = goalSize;
+            this.leftGoal.y = GameManager.height/2 - goalSize/2;
+            this.rightGoal.y = GameManager.height/2 - goalSize/2;
+        } 
 
     }
 

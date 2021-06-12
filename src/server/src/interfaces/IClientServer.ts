@@ -30,5 +30,6 @@ export interface IAdjustableSettings {
     instantBombReset:number;
     moveDelay:number;
     solidPlayers:number;
+    goalSize:number;
 
 }

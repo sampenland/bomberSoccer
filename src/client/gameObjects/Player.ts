@@ -59,7 +59,6 @@ export default class Player extends Phaser.GameObjects.Sprite
     }
 
     setPlayerName(name:string) {
-        console.log(this.label);
         (this.label.getChildByID("playerLabel") as HTMLSpanElement).innerHTML = name;
     }
 
@@ -85,6 +84,14 @@ export default class Player extends Phaser.GameObjects.Sprite
 
     teleport() {
 
+        this.anims.play("teleport");
+        this.on('animationcomplete', () => {
+            this.anims.play("stand");
+        }, this);
+
+        return;
+
+        // re-enable below for move delay and steps
         this.moves--;
 
         if(this.moves == 0) {
@@ -99,11 +106,6 @@ export default class Player extends Phaser.GameObjects.Sprite
 
             }, this.moveDelay);
         }
-
-        this.anims.play("teleport");
-        this.on('animationcomplete', () => {
-            this.anims.play("stand");
-        }, this);
 
     }
 

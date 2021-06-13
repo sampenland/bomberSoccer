@@ -69,11 +69,8 @@ export class GameBall extends Schema {
         let distance = Math.sqrt(Math.pow((this.x - bomb.x),2) + Math.pow((this.y - bomb.y), 2));
         if(distance >= this.gameWorld.state.settings.blastRadiusMax) return;
         
-        dir.x = (1/dir.x) * this.gameWorld.state.settings.blastMagnitude;
-        dir.y = (1/dir.y) * this.gameWorld.state.settings.blastMagnitude;
-
-        dir.x = Common.clamp(dir.x, -this.gameWorld.state.settings.maxSpeed, this.gameWorld.state.settings.maxSpeed);
-        dir.y = Common.clamp(dir.y, -this.gameWorld.state.settings.maxSpeed, this.gameWorld.state.settings.maxSpeed);
+        dir.x *= (50/distance) * this.gameWorld.state.settings.blastMagnitude;
+        dir.y *= (50/distance) * this.gameWorld.state.settings.blastMagnitude;
 
         Matter.Body.setVelocity(this.body, { x: dir.x, y: dir.y });
 

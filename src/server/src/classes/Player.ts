@@ -140,13 +140,14 @@ export class Player extends Schema {
         let bombX = this.x;
         let bombY = this.y;
 
+        let explodeTime = this.gameWorld.state.settings.explodeTime;
+        if(instant) explodeTime = 10;
+
         room.broadcast("bombDrop", {
             player:this,
             bombId: id,
+            explodeDelay: explodeTime
         });
-
-        let explodeTime = this.gameWorld.state.settings.explodeTime;
-        if(instant) explodeTime = 10;
 
         setTimeout(this.explodeBomb, explodeTime, room, id, bombX, bombY);
 

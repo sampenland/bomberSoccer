@@ -16,6 +16,8 @@ export default class GameManager {
     public static playerNum:number;
 
     public static solidPlayers:boolean = false;
+    public static airFriction:number;
+    public static blastDistance:number;
 
     public static opponentName:string | undefined = undefined;
     public static opponentId:string | undefined = undefined;

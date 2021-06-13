@@ -32,11 +32,11 @@ export interface IAdjustableSettings {
     blastRadiusMax:number;
     blastMagnitude:number;
     explodeTime:number;
-    maxSpeed:number;
     gameBallMass:number;
     moveDelay:number;
     solidPlayers:number;
     goalSize:number;
+    airFriction:number;
 }
 
 export interface IGameBall {
@@ -53,6 +53,7 @@ export interface IGameBall {
 export interface IBombDrop {
     bombId:number;
     player:IPlayer;
+    explodeDelay:number;
 }
 
 export interface IWorld {

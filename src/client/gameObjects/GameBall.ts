@@ -8,7 +8,8 @@ export default class GameBall extends Phaser.GameObjects.Sprite {
 
     drawer:Phaser.GameObjects.Graphics;
     radius:number = 1;
-    velocity:{x:number, y:number} = {x:0, y:0};
+    velocityX:number;
+    velocityY:number;
 
     label:Phaser.GameObjects.DOMElement;
 
@@ -16,6 +17,8 @@ export default class GameBall extends Phaser.GameObjects.Sprite {
 
         super(scene, -100, -100, 'gameBall');
         scene.add.existing(this);
+        this.velocityX = 0;
+        this.velocityY = 0;
 
         this.drawer = scene.add.graphics();
         this.drawer.lineStyle(1, 0x4e7f7d, 1);
@@ -55,11 +58,11 @@ export default class GameBall extends Phaser.GameObjects.Sprite {
     update() {
 
         this.drawer.clear();
-        this.drawer.strokeCircle(this.x, this.y, this.radius);
+        this.drawer.lineBetween(this.x, this.y, this.x + this.velocityX * 100, this.y + this.velocityY * 100);
 
         this.label.setPosition(this.x, this.y - this.height);
-        const vX = Math.round(this.velocity.x * 100) / 100;
-        const vY = Math.round(this.velocity.y * 100) / 100;
+        const vX = Math.round(this.velocityX * 100) / 100;
+        const vY = Math.round(this.velocityY * 100) / 100;
         (this.label.getChildByID("text") as HTMLSpanElement).innerHTML = "x: " + vX + ", " + vY;
 
     }

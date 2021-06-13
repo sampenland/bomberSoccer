@@ -17,6 +17,7 @@ export class GameRoom extends Room<GameRoomState> {
       this.state.gameWorld.updateGoals(settings.goalSize);
 
       this.state.settings = settings;
+      this.state.gameWorld.gameBall.body.frictionAir = settings.airFriction;
 
       this.state.players.forEach((p) => {
         p.changeSolid(settings.solidPlayers == 1);
@@ -35,15 +36,15 @@ export class GameRoom extends Room<GameRoomState> {
         // start settings
         this.state.settings = {
           blastRadiusMax: 100,
-          blastMagnitude: 10,
+          blastMagnitude: 0.05,
           explodeTime: 1000,
-          maxSpeed: 1,
           gameBallMass: 4,
           bombsAvailable: gameSettings.bombsAvailable,
           instantBombReset: 5000,
           moveDelay:0,
           solidPlayers: 0,
-          goalSize:gameSettings.goalSize
+          goalSize:gameSettings.goalSize,
+          airFriction:0.022
         };
 
         this.state.gameWorld = new World(gameSettings.gameSize.width, gameSettings.gameSize.height,gameSettings.borderSize, gameSettings.goalSize, this.state);

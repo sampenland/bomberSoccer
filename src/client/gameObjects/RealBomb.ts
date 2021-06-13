@@ -7,10 +7,11 @@ export default class RealBomb extends Phaser.GameObjects.Sprite {
     id:number;
     playerId:string;
     drawer:Phaser.GameObjects.Graphics;
+    trajectory:Phaser.GameObjects.Graphics;
     explodeSizeStart:number = 12;
     explodeDuration:number = 100;
 
-    constructor(scene:Phaser.Scene, x:number, y:number, id:number, playerId:string)
+    constructor(scene:Phaser.Scene, x:number, y:number, id:number, playerId:string, explodeDelay:number)
     {
         super(scene, x, y, 'bomb');
 
@@ -19,6 +20,9 @@ export default class RealBomb extends Phaser.GameObjects.Sprite {
 
         this.drawer = scene.add.graphics();
         this.drawer.lineStyle(1, 0x4e7f7d, 1);
+        this.trajectory = scene.add.graphics();
+        this.trajectory.lineStyle(1, 0x4e7f7d, 1);
+        this.trajectory.setPosition(0, 0);
 
         this.anims.create({
             key: 'bombBurning',
@@ -37,10 +41,41 @@ export default class RealBomb extends Phaser.GameObjects.Sprite {
         this.anims.play('bombBurning');
         scene.add.existing(this);
 
+        this.scene.tweens.addCounter({
+            to: 0,
+            from: 50,
+            duration: explodeDelay,
+            onUpdate: (v) => {
+
+                this.drawer.clear();
+                this.drawer.strokeCircle(this.x, this.y, v.getValue());
+                this.trajectory.clear();   
+                
+                let dir = {x:0, y:0};
+
+                const distance = Math.sqrt(Math.pow((this.x - Game.gameBall.x),2) + Math.pow((this.y - Game.gameBall.y), 2));
+
+                if(distance <= GameManager.blastDistance)
+                {
+                    dir.x = (Game.gameBall.x - this.x) * 2;
+                    dir.y = (Game.gameBall.y - this.y) * 2;
+                    
+                    this.trajectory.lineBetween(this.x, this.y, Game.gameBall.x + dir.x, Game.gameBall.y + dir.y);
+                }
+
+            },
+            onComplete: () => {
+                this.drawer.clear();
+                this.trajectory.clear();
+            },
+        });
+
+
     }
 
     explode(scale:number) {
         
+        this.visible = false;
         this.scene.tweens.addCounter({
             to: this.explodeSizeStart * scale,
             from: this.explodeSizeStart,

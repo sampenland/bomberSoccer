@@ -15,6 +15,8 @@ export default class Game extends Phaser.Scene {
     public static opponent:Player;
     public static gameBall:GameBall;
 
+    mouseLabel:Phaser.GameObjects.DOMElement | undefined;
+
     bombs:Map<number, RealBomb>;
 
     leftClickDown:boolean = false;
@@ -44,6 +46,7 @@ export default class Game extends Phaser.Scene {
         this.load.html('settings', 'html/settings.html');
         this.load.html('playerLabel', 'html/playerLabel.html');
         this.load.html('text', 'html/text.html');
+        this.load.html('textSmall', 'html/textSmall.html');
         this.load.spritesheet('player', 'sprites/player.png', {frameWidth: 20, frameHeight: 20});
         this.load.spritesheet('playerTeleport', 'sprites/playerTeleport.png', {frameWidth: 14, frameHeight: 22});
         this.load.spritesheet('moveTimer', 'sprites/moveTimer.png', {frameWidth: 8, frameHeight: 9});
@@ -57,6 +60,8 @@ export default class Game extends Phaser.Scene {
 
         if(this.paused) return;
 
+        Game.gameBall.update();
+        
         this.controls();
         Game.player.update();
         Game.opponent.update();
@@ -64,8 +69,6 @@ export default class Game extends Phaser.Scene {
     }
 
     controls(){
-
-        Game.gameBall.update();
 
         this.controlSettings();
         let c = this.controlMouse();
@@ -206,7 +209,7 @@ export default class Game extends Phaser.Scene {
                 borderSize:GameManager.borderSize,
                 goalSize:GameManager.goalSize,
                 testGame: GameManager.playerName == GameManager.testName,
-                bombsAvailable: 6,
+                bombsAvailable: -1,
 
             });
             
@@ -254,7 +257,8 @@ export default class Game extends Phaser.Scene {
         if(gameBall == undefined) return;
         Game.gameBall.setPosition(gameBall.x, gameBall.y);
         Game.gameBall.radius = gameBall.radius + 4;
-        Game.gameBall.velocity = {x:gameBall.velocityX, y:gameBall.velocityY};
+        Game.gameBall.velocityX = gameBall.velocityX;
+        Game.gameBall.velocityY = gameBall.velocityY;
 
     }
 
@@ -280,7 +284,7 @@ export default class Game extends Phaser.Scene {
 
     createBomb(scene:this, data:IBombDrop){
 
-        let newBomb = new RealBomb(this, data.player.x, data.player.y, data.bombId, data.player.id);
+        let newBomb = new RealBomb(this, data.player.x, data.player.y, data.bombId, data.player.id, data.explodeDelay);
         this.bombs.set(data.bombId, newBomb);
 
     }
@@ -323,6 +327,24 @@ export default class Game extends Phaser.Scene {
         this.playerOneScore = this.add.dom(15, 0).createFromCache('text').setOrigin(0, 0);
         this.playerTwoScore = this.add.dom(GameManager.width - 45, 0).createFromCache('text').setOrigin(1, 0);
         
+        this.mouseLabel = this.add.dom(0, 0).createFromCache('textSmall');
+        this.input.setPollAlways();
+        this.input.on("pointermove", (pointer) => {
+
+            if(this.mouseLabel != undefined) {
+                
+                const cX = pointer.x;
+                const cY = pointer.y;
+    
+                const mX = Math.round(cX * 100) /100;
+                const mY = Math.round(cY * 100) /100;
+                (this.mouseLabel.getChildByID("text") as HTMLSpanElement).innerHTML = "M: " + mX + "," + mY;
+                this.mouseLabel.setPosition(cX - 12, cY - 10);
+
+            }
+
+        }, this);
+
         this.createSettings();
 
         this.requestStart();
@@ -343,21 +365,21 @@ export default class Game extends Phaser.Scene {
                 var blastRadius = (this.settings.getChildByName('blastRadius') as HTMLInputElement).value;
                 var blastMagnitude = (this.settings.getChildByName('blastMagnitude') as HTMLInputElement).value;
                 var explodeTime = (this.settings.getChildByName('explodeTime') as HTMLInputElement).value;
-                var maxSpeed = (this.settings.getChildByName('maxSpeed') as HTMLInputElement).value;
                 var gameBallMass = (this.settings.getChildByName('gameBallMass') as HTMLInputElement).value;
                 var moveDelay = (this.settings.getChildByName('moveDelay') as HTMLInputElement).value;
                 var solidPlayers = (this.settings.getChildByName('solidPlayers') as HTMLInputElement).value;
                 var goalSize = (this.settings.getChildByName('goalSize') as HTMLInputElement).value;
+                var airFriction = (this.settings.getChildByName('airFriction') as HTMLInputElement).value;
 
                 GameManager.onlineRoom.send("adjustedSettings", {
                     blastRadiusMax:blastRadius,
                     blastMagnitude:blastMagnitude,
                     explodeTime:explodeTime,
-                    maxSpeed:maxSpeed,
                     gameBallMass:gameBallMass,
                     moveDelay:moveDelay,
                     solidPlayers:solidPlayers,
-                    goalSize:goalSize
+                    goalSize:goalSize,
+                    airFriction:airFriction
                 });
             }
 
@@ -377,11 +399,13 @@ export default class Game extends Phaser.Scene {
         (scene.settings.getChildByName('blastRadius') as HTMLInputElement).value = data.blastRadiusMax.toString();
         (scene.settings.getChildByName('blastMagnitude') as HTMLInputElement).value = data.blastMagnitude.toString();
         (scene.settings.getChildByName('explodeTime') as HTMLInputElement).value = data.explodeTime.toString();
-        (scene.settings.getChildByName('maxSpeed') as HTMLInputElement).value = data.maxSpeed.toString();
         (scene.settings.getChildByName('gameBallMass') as HTMLInputElement).value = data.gameBallMass.toString();
         (scene.settings.getChildByName('moveDelay') as HTMLInputElement).value = data.moveDelay.toString();
         (scene.settings.getChildByName('solidPlayers') as HTMLInputElement).value = data.solidPlayers.toString();
+        (scene.settings.getChildByName('airFriction') as HTMLInputElement).value = data.airFriction.toString();
 
+        GameManager.airFriction = data.airFriction;
+        GameManager.blastDistance = data.blastRadiusMax;
         GameManager.solidPlayers = data.solidPlayers.toString() == "1";
 
         (scene.settings.getChildByName('goalSize') as HTMLInputElement).value = data.goalSize.toString();

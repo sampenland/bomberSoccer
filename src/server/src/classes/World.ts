@@ -65,7 +65,7 @@ export class World extends Schema {
         
         this.gameBall.body = Matter.Bodies.circle(this.width/2, this.height/2, 24 * World.scaleCorrection, {
             mass: this.state.settings.gameBallMass,
-            frictionAir: 0,
+            frictionAir: this.state.settings.airFriction,
             restitution: .8,
             label:"gameBall",
         });

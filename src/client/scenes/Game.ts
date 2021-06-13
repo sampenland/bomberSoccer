@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import GameBall from '../gameObjects/GameBall';
 import Player from '../gameObjects/Player';
+import PurchaseHub from '../gameObjects/PurchaseHub';
 import RealBomb from '../gameObjects/RealBomb';
 import Colors from '../globals/Colors'
 import GameManager from '../globals/GameManager';
@@ -14,6 +15,8 @@ export default class Game extends Phaser.Scene {
     public static player:Player;
     public static opponent:Player;
     public static gameBall:GameBall;
+
+    purchaseHub:PurchaseHub | undefined;
 
     mouseLabel:Phaser.GameObjects.DOMElement | undefined;
 
@@ -46,7 +49,12 @@ export default class Game extends Phaser.Scene {
         this.load.html('settings', 'html/settings.html');
         this.load.html('playerLabel', 'html/playerLabel.html');
         this.load.html('text', 'html/text.html');
+        this.load.html('loadout', 'html/purchaseHub/loadout.html');
+        this.load.html('coinText', 'html/purchaseHub/coins.html');
+        this.load.html('readyBtn', 'html/purchaseHub/readyBtn.html');
+        this.load.html('readyLabel', 'html/purchaseHub/readyLabel.html');
         this.load.html('textSmall', 'html/textSmall.html');
+        this.load.html('null', 'sprites/null.png');
         this.load.spritesheet('player', 'sprites/player.png', {frameWidth: 20, frameHeight: 20});
         this.load.spritesheet('playerTeleport', 'sprites/playerTeleport.png', {frameWidth: 14, frameHeight: 22});
         this.load.spritesheet('moveTimer', 'sprites/moveTimer.png', {frameWidth: 8, frameHeight: 9});
@@ -57,6 +65,17 @@ export default class Game extends Phaser.Scene {
     }
 
     update(){
+
+        if(this.purchaseHub != undefined) {
+         
+            this.purchaseHub.update();
+
+            if(PurchaseHub.turns % PurchaseHub.purchaseTurnEvery == 0) {
+                this.purchaseHub.update();
+                return;
+            }
+
+        }
 
         if(this.paused) return;
 
@@ -99,9 +118,20 @@ export default class Game extends Phaser.Scene {
 
     }
 
-    showOpponentTeleport(room:this, data:{x:number, y:number}) {
+    showOpponentTeleport(scene:this, data:{x:number, y:number}) {
         Game.opponent.setPosition(data.x, data.y);
         Game.opponent.teleport();
+    }
+
+    score(scene:this, data:any) {
+
+        if(scene.purchaseHub) {
+            scene.purchaseHub.updated = false;
+        }
+        
+        PurchaseHub.turns++;
+        GameManager.onlineRoom.send("reset",{});
+
     }
 
     controlMouse() {
@@ -152,7 +182,8 @@ export default class Game extends Phaser.Scene {
 
     create() {
 
-        this.input.setPollAlways();
+        this.purchaseHub = new PurchaseHub(this, 25, GameManager.width, GameManager.height);
+        
         this.setupServerMessages();
 
         console.log("Game booted.");
@@ -168,6 +199,14 @@ export default class Game extends Phaser.Scene {
         GameManager.onlineRoom.onMessage("explodeBomb", this.explodeBomb.bind(this, this));
         GameManager.onlineRoom.onMessage("adjustedSettings", this.adjustedSettings.bind(this, this));
         GameManager.onlineRoom.onMessage("opponentPosition", this.showOpponentTeleport.bind(this, this));
+        GameManager.onlineRoom.onMessage("score", this.score.bind(this, this));
+        GameManager.onlineRoom.onMessage("startCountdown", this.startCountdown.bind(this, this));
+    }
+
+    startCountdown(scene:this, data:{delay:boolean}) {
+
+        PurchaseHub.turns++;
+
     }
 
     startGame(scene:this, data:{playerOne:IPlayer, playerTwo:IPlayer, gameBall:IGameBall}) {
@@ -175,11 +214,28 @@ export default class Game extends Phaser.Scene {
         console.log("Starting game.");
         scene.paused = false;
 
+        if(scene.leftGoal && scene.rightGoal) {
+        
+            if(data.playerOne.playerNumber == 0) 
+            {
+                scene.leftGoal.fillColor = 0x00ff00;
+                scene.rightGoal.fillColor = 0xff0000;
+            }
+            else 
+            {
+                scene.leftGoal.fillColor = 0xff0000;
+                scene.rightGoal.fillColor = 0x00ff00;
+            }
+
+        }
+        
         scene.updateGameBall(data.gameBall);
         
         if(data.playerOne.id == GameManager.onlineRoom.sessionId) {
             
             Game.player.id = data.playerOne.id;
+            Game.player.playerNum = data.playerOne.playerNumber;
+            Game.opponent.playerNum = data.playerTwo.playerNumber;
             Game.opponent.id = data.playerTwo.id;
 
             scene.thisPlayerUpdate(data.playerOne);
@@ -189,12 +245,16 @@ export default class Game extends Phaser.Scene {
         else 
         {
             Game.opponent.id = data.playerOne.id;
+            Game.opponent.playerNum = data.playerOne.playerNumber;
+            Game.player.playerNum = data.playerTwo.playerNumber;
             Game.player.id = data.playerTwo.id;
 
             scene.thisPlayerUpdate(data.playerTwo);
             scene.otherPlayerUpdate(data.playerOne);
             GameManager.opponentId = data.playerOne.id;
         }
+
+        this.purchaseHub?.updateDisplay(true);
     }
 
     requestStart() {
@@ -319,19 +379,19 @@ export default class Game extends Phaser.Scene {
         if(GameManager.opponentName)
             Game.opponent.setPlayerName(GameManager.opponentName);
 
-        Game.player.tint = 0x00ff00;
+        Game.player.tint = 0x00ff00;        
         Game.opponent.tint = 0xff0000;
 
         Game.gameBall = new GameBall(this);
 
         this.playerOneScore = this.add.dom(15, 0).createFromCache('text').setOrigin(0, 0);
-        this.playerTwoScore = this.add.dom(GameManager.width - 45, 0).createFromCache('text').setOrigin(1, 0);
+        this.playerTwoScore = this.add.dom(GameManager.width - 80, 0).createFromCache('text').setOrigin(1, 0);
         
         this.mouseLabel = this.add.dom(0, 0).createFromCache('textSmall');
         this.input.setPollAlways();
         this.input.on("pointermove", (pointer) => {
 
-            if(this.mouseLabel != undefined) {
+            if(this.mouseLabel != undefined && GameManager.debug) {
                 
                 const cX = pointer.x;
                 const cY = pointer.y;

@@ -18,6 +18,10 @@ export interface IBomb {
     y:number;
 }
 
+export interface IReady {
+    ready:boolean;
+}
+
 export interface IAdjustableSettings {
 
     blastRadiusMax:number;

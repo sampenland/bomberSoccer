@@ -1,3 +1,4 @@
+import Colors from "../globals/Colors";
 import GameManager from "../globals/GameManager";
 import Game from "../scenes/Game";
 import Player from "./Player";
@@ -48,6 +49,7 @@ export default class RealBomb extends Phaser.GameObjects.Sprite {
             onUpdate: (v) => {
 
                 this.drawer.clear();
+                this.drawer.lineStyle(1, 0x4e7f7d, 1);
                 this.drawer.strokeCircle(this.x, this.y, v.getValue());
                 this.trajectory.clear();   
                 
@@ -82,6 +84,7 @@ export default class RealBomb extends Phaser.GameObjects.Sprite {
             duration: this.explodeDuration,
             onUpdate: (v) => {
                 this.drawer.clear();
+                this.drawer.fillStyle(Colors.white.color32, 1);
                 this.drawer.fillCircle(this.x, this.y, v.getValue());
             },
             onComplete: () => {

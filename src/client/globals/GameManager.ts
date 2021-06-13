@@ -1,8 +1,15 @@
-import Phaser from 'phaser'
 import * as Colyseus from 'colyseus.js'
 import {Client} from 'colyseus.js'
+import { ILoadout } from '../interfaces/ILoadout';
+
+export class HeroType {
+    static instant = "Instant";
+    static gravity = "Gravity";
+};
 
 export default class GameManager {
+
+    public static debug:boolean = false;
 
     public static width:number;
     public static height:number;
@@ -30,5 +37,22 @@ export default class GameManager {
 
     public static tempNextRoomId:string | undefined;
     public static tempOldRoomId:string;
+
+    public static playerLoadout:ILoadout = {
+        coins:1,
+        usedCoins:0,
+        bombs:10,
+        specialBombs: 1,
+        hero: HeroType.instant,
+        ready: false
+    };
+    public static opponentLoadout:ILoadout = {
+        coins:2,
+        usedCoins:0,
+        bombs:10,
+        specialBombs: 2,
+        hero: HeroType.gravity,
+        ready: false
+    };
 
 }

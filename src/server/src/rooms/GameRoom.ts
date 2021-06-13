@@ -1,8 +1,7 @@
 import { Room, Client } from "colyseus";
-import Matter from "matter-js";
 import { Player } from "../classes/Player";
 import { World } from "../classes/World";
-import { IAdjustableSettings, IControls, IGameSettings } from "../interfaces/IClientServer";
+import { IAdjustableSettings, IControls, IGameSettings, IReady } from "../interfaces/IClientServer";
 import { GameRoomState } from "./schema/GameRoomState";
 
 export class GameRoom extends Room<GameRoomState> {
@@ -28,6 +27,29 @@ export class GameRoom extends Room<GameRoomState> {
 
     });
 
+    this.onMessage("setReady", (client:Client, settings:IReady) => {
+
+      let bothPlayersReady = true;
+      this.state.players.forEach((player) => {
+
+        if(player.id == client.sessionId) {
+
+          player.ready = settings.ready;
+
+        }
+
+        if(player.ready == false) {
+          bothPlayersReady = false;
+        }
+
+      });
+
+      if(bothPlayersReady) {
+        this.broadcast("startCountdown", {delay:3000});
+      }
+
+    });
+
     this.onMessage("requestStart", (client:Client, gameSettings:IGameSettings) => {
 
       if((this.clients.length == 2 || gameSettings.testGame) && !this.state.started) {
@@ -48,7 +70,11 @@ export class GameRoom extends Room<GameRoomState> {
           airFriction:0.022,
         };
 
-        this.state.gameWorld = new World(gameSettings.gameSize.width, gameSettings.gameSize.height,gameSettings.borderSize, gameSettings.goalSize, this.state);
+        this.state.gameWorld = new World(gameSettings.gameSize.width, 
+          gameSettings.gameSize.height,
+          gameSettings.borderSize, 
+          gameSettings.goalSize, 
+          this.state, this);
 
         this.broadcast("adjustedSettings", this.state.settings);
 
@@ -78,6 +104,7 @@ export class GameRoom extends Room<GameRoomState> {
 
       this.state.players.forEach( (p) => {
         p.bombsAvailable = this.state.settings.bombsAvailable;
+        p.reset();
       });
 
     });
@@ -106,7 +133,7 @@ export class GameRoom extends Room<GameRoomState> {
           {
             this.broadcast("opponentPosition", {x:player.x, y:player.y}, {except: client});
             player.setPosition(message.mouseX, message.mouseY);
-            player.dropBomb(this, true);
+            player.dropBomb(true);
           }
           
 
@@ -119,7 +146,7 @@ export class GameRoom extends Room<GameRoomState> {
           if(message.rightPressed) {
             this.broadcast("opponentPosition", {x:player.x, y:player.y}, {except: client});
             player.setPosition(message.mouseX, message.mouseY);
-            player.dropBomb(this);
+            player.dropBomb();
           }
 
         }

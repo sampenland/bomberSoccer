@@ -1,5 +1,4 @@
 import GameManager from "../globals/GameManager";
-import { ICircle, IRect } from "../interfaces/IClientServer";
 import Game from "../scenes/Game";
 
 export default class GameBall extends Phaser.GameObjects.Sprite {
@@ -61,9 +60,15 @@ export default class GameBall extends Phaser.GameObjects.Sprite {
         this.drawer.clear();
         this.drawer.lineBetween(this.x, this.y, this.x + this.velocityX * 100, this.y + this.velocityY * 100);
 
-        const vX = Math.round(this.velocityX * 100) / 100;
-        const vY = Math.round(this.velocityY * 100) / 100;
-        (this.label.getChildByID("text") as HTMLSpanElement).innerHTML = "x: " + vX + ", " + vY;
+        if(GameManager.debug) {
+
+            const vX = Math.round(this.velocityX * 100) / 100;
+            const vY = Math.round(this.velocityY * 100) / 100;
+            (this.label.getChildByID("text") as HTMLSpanElement).innerHTML = "x: " + vX + ", " + vY;
+
+        } else {
+            (this.label.getChildByID("text") as HTMLSpanElement).innerHTML = "";
+        }
 
     }
 

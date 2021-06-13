@@ -2,6 +2,7 @@ import { Schema, type } from "@colyseus/schema";
 import Matter from 'matter-js'
 import { GameRoomState } from "../rooms/schema/GameRoomState";
 import { GameBall } from "./GameBall";
+import { Room } from "colyseus";
 
 export class World extends Schema {
     
@@ -24,6 +25,7 @@ export class World extends Schema {
     @type(GameBall)
     gameBall:GameBall;
     state:GameRoomState;
+    room:Room<GameRoomState>;
 
     goalLeft:Matter.Body;
     goalRight:Matter.Body;
@@ -32,11 +34,12 @@ export class World extends Schema {
     rightTop:Matter.Body;
     rightBottom:Matter.Body;
 
-    constructor(width:number, height:number, borderSize:number, goalSize:number, state:GameRoomState) {
+    constructor(width:number, height:number, borderSize:number, goalSize:number, state:GameRoomState, room:Room<GameRoomState>) {
 
         super();
 
         console.log("Created matter js world");
+        this.room = room;
         this.width = width;
         this.height = height;
         this.borderSize = borderSize;

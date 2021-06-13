@@ -1,0 +1,160 @@
+import Colors from "../globals/Colors";
+import GameManager from "../globals/GameManager";
+import Game from "../scenes/Game";
+
+export default class PurchaseHub extends Phaser.GameObjects.Sprite {
+
+    public static turns:number = 0;
+    public static purchaseTurnEvery:number = 1;
+    drawer:Phaser.GameObjects.Graphics;
+
+    padding:number;
+
+    playerLoadout:Phaser.GameObjects.DOMElement;
+    opponentLoadout:Phaser.GameObjects.DOMElement;
+    
+    playerCoins:Phaser.GameObjects.DOMElement;
+    opponentCoins:Phaser.GameObjects.DOMElement;
+
+    playerReadyBtn:Phaser.GameObjects.DOMElement;
+    opponentReadyLabel:Phaser.GameObjects.DOMElement;
+
+    updated:boolean = false;
+
+    constructor(scene:Phaser.Scene, padding:number, width:number, height:number) {
+
+        super(scene, padding, padding, 'null');
+        this.padding = padding;
+
+        this.drawer = scene.add.graphics();
+        this.drawer.setDepth(100);
+        this.drawer.setPosition(0, 0);
+        this.width = width - padding*2;
+        this.height = height - padding*2;
+
+        PurchaseHub.turns = 0;
+
+        this.playerLoadout = scene.add.dom(0, 0).createFromCache('loadout').setOrigin(0, 0);
+        this.opponentLoadout = scene.add.dom(0, 0).createFromCache('loadout').setOrigin(0, 0);
+
+        this.playerCoins = scene.add.dom(0, 0).createFromCache('coinText').setOrigin(0, 0);
+        this.opponentCoins = scene.add.dom(0, 0).createFromCache('coinText').setOrigin(0, 0);
+
+        this.playerReadyBtn = scene.add.dom(GameManager.width/4, GameManager.height - 40).createFromCache('readyBtn').setOrigin(0, 0);
+        this.opponentReadyLabel = scene.add.dom(GameManager.width - padding - GameManager.width/4, GameManager.height - 40).createFromCache('readyLabel').setOrigin(0, 0);
+
+        this.playerReadyBtn.addListener('click');
+        this.playerReadyBtn.on("click", (event) => {
+
+            if (event.target.name === 'readyBtn')
+            {
+                GameManager.playerLoadout.ready = !GameManager.playerLoadout.ready;
+                if(GameManager.playerLoadout.ready) {
+                    (this.playerReadyBtn.getChildByID("readyBtn") as HTMLInputElement).style.color = "#181c28";
+                    (this.playerReadyBtn.getChildByID("readyBtn") as HTMLInputElement).style.backgroundColor = "#70d38b";    
+                }
+                else {
+                    (this.playerReadyBtn.getChildByID("readyBtn") as HTMLInputElement).style.color = "#70d38b";
+                    (this.playerReadyBtn.getChildByID("readyBtn") as HTMLInputElement).style.backgroundColor = "#181c28";    
+                }
+                GameManager.onlineRoom.send("setReady", {ready:GameManager.playerLoadout.ready});
+            }
+            
+        });
+
+    }
+
+    positionCoin() {
+
+        let PXCoins = GameManager.width/2.3 - this.padding;
+        let OXCoins = GameManager.width - this.padding * 3;
+
+        if(Game.player.playerNum == 0) {
+            let temp = PXCoins;
+            PXCoins = OXCoins;
+            OXCoins = temp;
+        }
+
+        const yCoins = this.padding * 1.1;
+
+        this.playerCoins.setPosition(PXCoins, yCoins);
+        this.opponentCoins.setPosition(OXCoins, yCoins);
+
+        // -----------------------------
+
+        let PXL = GameManager.width/2.3 + this.padding * 1.25;
+        let OXL = this.padding * 1.25;
+
+        if(Game.player.playerNum == 0) {
+
+            let tempX = PXL;
+            PXL = OXL;
+            OXL = tempX;
+
+            this.opponentLoadout.setPosition(PXL, this.padding * 0.75);
+            this.playerLoadout.setPosition(OXL, this.padding * 0.75);
+        }
+        
+        // ------------------------------
+
+        let readyBtnX = GameManager.width/4;
+        let labelX = GameManager.width - this.padding - GameManager.width/4;
+        let readyY = GameManager.height - 40;
+
+        if(Game.player.playerNum == 0) {
+            let tempX = readyBtnX;
+            readyBtnX = labelX;
+            labelX = tempX;
+
+            this.playerReadyBtn.setPosition(readyBtnX, readyY);
+            this.opponentReadyLabel.setPosition(labelX, readyY);
+        }
+
+        this.playerReadyBtn.visible = false;
+        this.opponentReadyLabel.visible = false;
+
+    }
+
+    updateDisplay(visible:boolean) {
+
+        if(this.updated) return;
+
+        this.updated = true;
+
+        this.positionCoin();
+        (this.playerCoins.getChildByID("text") as HTMLSpanElement).innerHTML = "Coins: " + GameManager.playerLoadout.usedCoins + " / " + GameManager.playerLoadout.coins;
+        (this.opponentCoins.getChildByID("text") as HTMLSpanElement).innerHTML = "Coins: " + GameManager.opponentLoadout.usedCoins + " / " + GameManager.opponentLoadout.coins;
+
+        (this.playerLoadout.getChildByID("hero") as HTMLSpanElement).innerHTML = GameManager.playerLoadout.hero;
+        (this.playerLoadout.getChildByID("bombs") as HTMLSpanElement).innerHTML = GameManager.playerLoadout.bombs.toString();
+        (this.playerLoadout.getChildByID("specialBombs") as HTMLSpanElement).innerHTML =GameManager.playerLoadout.specialBombs.toString();
+
+        (this.opponentLoadout.getChildByID("hero") as HTMLSpanElement).innerHTML = GameManager.opponentLoadout.hero;
+        (this.opponentLoadout.getChildByID("bombs") as HTMLSpanElement).innerHTML = GameManager.opponentLoadout.bombs.toString();
+        (this.opponentLoadout.getChildByID("specialBombs") as HTMLSpanElement).innerHTML =GameManager.opponentLoadout.specialBombs.toString();
+
+        this.playerCoins.visible = visible;
+        this.opponentCoins.visible = visible;
+        this.drawer.visible = visible;
+        this.playerLoadout.visible = visible;
+        this.opponentLoadout.visible = visible;
+        this.playerReadyBtn.visible = visible;
+        this.opponentReadyLabel.visible = visible;
+    }
+
+    update() {
+
+        this.drawer.clear();
+
+        if(PurchaseHub.turns % PurchaseHub.purchaseTurnEvery != 0) return;
+
+        this.drawer.fillStyle(Colors.blueGreen.color32, 1);
+        this.drawer.fillRect(this.x, this.y, this.width, this.height);
+
+        this.drawer.lineStyle(1, Colors.darkGray.color32, 1);
+        this.drawer.lineBetween(GameManager.width/2, 0, GameManager.width/2, GameManager.height);
+        
+    }
+
+
+}

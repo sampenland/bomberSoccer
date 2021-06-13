@@ -21,6 +21,9 @@ export class Player extends Schema {
     @type("number")
     y:number;
 
+    @type("boolean")
+    ready:boolean;
+
     @type(World)
     gameWorld:World;
 
@@ -45,6 +48,7 @@ export class Player extends Schema {
         super();
         this.name = name;
         this.id = id;
+        this.ready = false;
         this.placedBombs = new Array<number>();
 
     }
@@ -79,8 +83,12 @@ export class Player extends Schema {
 
     }
 
+    reset() {
+        this.positionPlayers(this.playerNumber);
+    }
+
     scoreGoal() {
-        this.gameWorld.gameBall.reset();
+        this.gameWorld.room.broadcast("score", {});
         this.score++;
     }
 
@@ -95,7 +103,7 @@ export class Player extends Schema {
         this.placedBombs.splice(this.placedBombs.indexOf(id), 1);
     }
 
-    dropBomb(room:Room<GameRoomState>, instant?:boolean) {
+    dropBomb(instant?:boolean) {
         
         if(instant && this.canDropInstant) 
         {
@@ -143,13 +151,13 @@ export class Player extends Schema {
         let explodeTime = this.gameWorld.state.settings.explodeTime;
         if(instant) explodeTime = 10;
 
-        room.broadcast("bombDrop", {
+        this.gameWorld.room.broadcast("bombDrop", {
             player:this,
             bombId: id,
             explodeDelay: explodeTime
         });
 
-        setTimeout(this.explodeBomb, explodeTime, room, id, bombX, bombY);
+        setTimeout(this.explodeBomb, explodeTime, this.gameWorld.room, id, bombX, bombY);
 
     }
 

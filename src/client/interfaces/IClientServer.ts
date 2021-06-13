@@ -37,6 +37,7 @@ export interface IAdjustableSettings {
     solidPlayers:number;
     goalSize:number;
     airFriction:number;
+    bombsAvailable:number;
 }
 
 export interface IGameBall {

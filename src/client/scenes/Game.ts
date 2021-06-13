@@ -232,12 +232,12 @@ export default class Game extends Phaser.Scene {
             if(player.playerNumber == 1)
             {
                 if(this.playerOneScore)
-                this.playerOneScore.getChildByID("text").innerHTML = ("Score: " + player.score);
+                this.playerOneScore.getChildByID("text").innerHTML = (player.name + ": " + player.score);
             }
             else
             {
                 if(this.playerTwoScore)
-                this.playerTwoScore.getChildByID("text").innerHTML = ("Score: " + player.score);
+                this.playerTwoScore.getChildByID("text").innerHTML = (player.name + ": " + player.score);
             }
 
             if(player.id == GameManager.onlineRoom.sessionId) {
@@ -319,8 +319,8 @@ export default class Game extends Phaser.Scene {
         if(GameManager.opponentName)
             Game.opponent.setPlayerName(GameManager.opponentName);
 
-        Game.player.tint = Colors.white.color32;
-        Game.opponent.tint = Colors.lightGreen.color32;
+        Game.player.tint = 0x00ff00;
+        Game.opponent.tint = 0xff0000;
 
         Game.gameBall = new GameBall(this);
 
@@ -370,6 +370,7 @@ export default class Game extends Phaser.Scene {
                 var solidPlayers = (this.settings.getChildByName('solidPlayers') as HTMLInputElement).value;
                 var goalSize = (this.settings.getChildByName('goalSize') as HTMLInputElement).value;
                 var airFriction = (this.settings.getChildByName('airFriction') as HTMLInputElement).value;
+                var bombsAvailable = parseInt((this.settings.getChildByName('bombsAvailable') as HTMLInputElement).value);
 
                 GameManager.onlineRoom.send("adjustedSettings", {
                     blastRadiusMax:blastRadius,
@@ -379,7 +380,8 @@ export default class Game extends Phaser.Scene {
                     moveDelay:moveDelay,
                     solidPlayers:solidPlayers,
                     goalSize:goalSize,
-                    airFriction:airFriction
+                    airFriction:airFriction,
+                    bombsAvailable:bombsAvailable
                 });
             }
 
@@ -403,6 +405,7 @@ export default class Game extends Phaser.Scene {
         (scene.settings.getChildByName('moveDelay') as HTMLInputElement).value = data.moveDelay.toString();
         (scene.settings.getChildByName('solidPlayers') as HTMLInputElement).value = data.solidPlayers.toString();
         (scene.settings.getChildByName('airFriction') as HTMLInputElement).value = data.airFriction.toString();
+        (scene.settings.getChildByName('bombsAvailable') as HTMLInputElement).value = data.bombsAvailable.toString();
 
         GameManager.airFriction = data.airFriction;
         GameManager.blastDistance = data.blastRadiusMax;

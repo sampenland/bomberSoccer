@@ -29,7 +29,7 @@ export default class Player extends Phaser.GameObjects.Sprite
         this.drawer = scene.add.graphics();
         this.drawer.lineStyle(2, 0xcbffd8, 0.75);
 
-        this.label = scene.add.dom(0, 0).createFromCache('playerLabel');
+        this.label = scene.add.dom(0, 0).createFromCache('playerLabel').setOrigin(0, 0);
 
         this.moveTimer = new Phaser.GameObjects.Sprite(scene, this.x, this.y, 'moveTimer');
         this.moveTimer.alpha = 0;
@@ -64,8 +64,8 @@ export default class Player extends Phaser.GameObjects.Sprite
 
     update() 
     {
-        (this.label.getChildByID("playerLabel") as HTMLSpanElement).innerHTML = this.name + " " + this.bombs;
-        this.label.setPosition(this.x, this.y - this.height);
+        (this.label.getChildByID("playerLabel") as HTMLSpanElement).innerHTML = this.bombs.toString();
+        this.label.setPosition(this.x - 10, this.y - this.height - 10);
         this.moveTimer.setPosition(this.x - this.width * 0.75, this.y);
 
     }

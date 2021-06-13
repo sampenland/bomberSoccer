@@ -23,7 +23,8 @@ export default class GameBall extends Phaser.GameObjects.Sprite {
         this.drawer = scene.add.graphics();
         this.drawer.lineStyle(1, 0x4e7f7d, 1);
 
-        this.label = scene.add.dom(0, 0).createFromCache('text');
+        this.label = scene.add.dom(0, 0).createFromCache('text').setOrigin(0, 0);
+        this.label.setPosition(15, GameManager.height - 15);
 
     }
 
@@ -60,7 +61,6 @@ export default class GameBall extends Phaser.GameObjects.Sprite {
         this.drawer.clear();
         this.drawer.lineBetween(this.x, this.y, this.x + this.velocityX * 100, this.y + this.velocityY * 100);
 
-        this.label.setPosition(this.x, this.y - this.height);
         const vX = Math.round(this.velocityX * 100) / 100;
         const vY = Math.round(this.velocityY * 100) / 100;
         (this.label.getChildByID("text") as HTMLSpanElement).innerHTML = "x: " + vX + ", " + vY;

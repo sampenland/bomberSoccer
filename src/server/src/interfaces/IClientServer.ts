@@ -11,7 +11,6 @@ export interface IGameSettings {
     borderSize:number;
     goalSize:number;
     testGame:boolean;
-    bombsAvailable:number;
 }
 
 export interface IBomb {

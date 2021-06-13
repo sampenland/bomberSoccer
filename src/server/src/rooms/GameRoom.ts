@@ -21,6 +21,7 @@ export class GameRoom extends Room<GameRoomState> {
 
       this.state.players.forEach((p) => {
         p.changeSolid(settings.solidPlayers == 1);
+        p.bombsAvailable = settings.bombsAvailable;
       });
 
       this.broadcast("adjustedSettings", settings);
@@ -39,19 +40,19 @@ export class GameRoom extends Room<GameRoomState> {
           blastMagnitude: 0.05,
           explodeTime: 1000,
           gameBallMass: 4,
-          bombsAvailable: gameSettings.bombsAvailable,
+          bombsAvailable: 10,
           instantBombReset: 5000,
           moveDelay:0,
           solidPlayers: 0,
           goalSize:gameSettings.goalSize,
-          airFriction:0.022
+          airFriction:0.022,
         };
 
         this.state.gameWorld = new World(gameSettings.gameSize.width, gameSettings.gameSize.height,gameSettings.borderSize, gameSettings.goalSize, this.state);
 
         this.broadcast("adjustedSettings", this.state.settings);
 
-        this.state.players[0].setGameWorld(this.state.gameWorld, gameSettings.bombsAvailable, 26);
+        this.state.players[0].setGameWorld(this.state.gameWorld, this.state.settings.bombsAvailable, 26);
 
         this.state.players[0].positionPlayers(0);
         
@@ -59,7 +60,7 @@ export class GameRoom extends Room<GameRoomState> {
           this.state.players.push(new Player("CPU", "cpu"));
         }
 
-        this.state.players[1].setGameWorld(this.state.gameWorld, gameSettings.bombsAvailable, 26);
+        this.state.players[1].setGameWorld(this.state.gameWorld, this.state.settings.bombsAvailable, 26);
         this.state.players[1].positionPlayers(1);
 
         this.broadcast("startGame", {

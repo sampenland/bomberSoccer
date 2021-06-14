@@ -46,6 +46,11 @@ export class GameRoom extends Room<GameRoomState> {
 
       if(bothPlayersReady) {
         this.broadcast("startCountdown", {delay:3000});
+
+        this.state.players.forEach((player) => {
+          player.ready = false;
+        });
+
       }
 
     });
@@ -84,6 +89,7 @@ export class GameRoom extends Room<GameRoomState> {
         
         if(this.state.players.length == 1) {
           this.state.players.push(new Player("CPU", "cpu"));
+          this.state.players[this.state.players.length - 1].ready = true;
         }
 
         this.state.players[1].setGameWorld(this.state.gameWorld, this.state.settings.bombsAvailable, 26);

@@ -5,7 +5,7 @@ import Game from "../scenes/Game";
 export default class PurchaseHub extends Phaser.GameObjects.Sprite {
 
     public static turns:number = 0;
-    public static purchaseTurnEvery:number = 1;
+    public static purchaseTurnEvery:number = 3;
     drawer:Phaser.GameObjects.Graphics;
 
     padding:number;
@@ -20,6 +20,7 @@ export default class PurchaseHub extends Phaser.GameObjects.Sprite {
     opponentReadyLabel:Phaser.GameObjects.DOMElement;
 
     updated:boolean = false;
+    purchaseHubVisible:boolean = true;
 
     constructor(scene:Phaser.Scene, padding:number, width:number, height:number) {
 
@@ -34,14 +35,14 @@ export default class PurchaseHub extends Phaser.GameObjects.Sprite {
 
         PurchaseHub.turns = 0;
 
-        this.playerLoadout = scene.add.dom(0, 0).createFromCache('loadout').setOrigin(0, 0);
-        this.opponentLoadout = scene.add.dom(0, 0).createFromCache('loadout').setOrigin(0, 0);
+        this.playerLoadout = scene.add.dom(-500, -500).createFromCache('loadout').setOrigin(0, 0);
+        this.opponentLoadout = scene.add.dom(-500, -500).createFromCache('loadout').setOrigin(0, 0);
 
-        this.playerCoins = scene.add.dom(0, 0).createFromCache('coinText').setOrigin(0, 0);
-        this.opponentCoins = scene.add.dom(0, 0).createFromCache('coinText').setOrigin(0, 0);
+        this.playerCoins = scene.add.dom(-500, -500).createFromCache('coinText').setOrigin(0, 0);
+        this.opponentCoins = scene.add.dom(-500, -500).createFromCache('coinText').setOrigin(0, 0);
 
-        this.playerReadyBtn = scene.add.dom(GameManager.width/4, GameManager.height - 40).createFromCache('readyBtn').setOrigin(0, 0);
-        this.opponentReadyLabel = scene.add.dom(GameManager.width - padding - GameManager.width/4, GameManager.height - 40).createFromCache('readyLabel').setOrigin(0, 0);
+        this.playerReadyBtn = scene.add.dom(-500, -500).createFromCache('readyBtn').setOrigin(0, 0);
+        this.opponentReadyLabel = scene.add.dom(-500, -500).createFromCache('readyLabel').setOrigin(0, 0);
 
         this.playerReadyBtn.addListener('click');
         this.playerReadyBtn.on("click", (event) => {
@@ -64,7 +65,7 @@ export default class PurchaseHub extends Phaser.GameObjects.Sprite {
 
     }
 
-    positionCoin() {
+    position() {
 
         let PXCoins = GameManager.width/2.3 - this.padding;
         let OXCoins = GameManager.width - this.padding * 3;
@@ -94,6 +95,10 @@ export default class PurchaseHub extends Phaser.GameObjects.Sprite {
             this.opponentLoadout.setPosition(PXL, this.padding * 0.75);
             this.playerLoadout.setPosition(OXL, this.padding * 0.75);
         }
+        else {
+            this.opponentLoadout.setPosition(PXL, this.padding * 0.75);
+            this.playerLoadout.setPosition(OXL, this.padding * 0.75);
+        }
         
         // ------------------------------
 
@@ -109,6 +114,10 @@ export default class PurchaseHub extends Phaser.GameObjects.Sprite {
             this.playerReadyBtn.setPosition(readyBtnX, readyY);
             this.opponentReadyLabel.setPosition(labelX, readyY);
         }
+        else {
+            this.playerReadyBtn.setPosition(readyBtnX, readyY);
+            this.opponentReadyLabel.setPosition(labelX, readyY);
+        }
 
         this.playerReadyBtn.visible = false;
         this.opponentReadyLabel.visible = false;
@@ -121,7 +130,7 @@ export default class PurchaseHub extends Phaser.GameObjects.Sprite {
 
         this.updated = true;
 
-        this.positionCoin();
+        this.position();
         (this.playerCoins.getChildByID("text") as HTMLSpanElement).innerHTML = "Coins: " + GameManager.playerLoadout.usedCoins + " / " + GameManager.playerLoadout.coins;
         (this.opponentCoins.getChildByID("text") as HTMLSpanElement).innerHTML = "Coins: " + GameManager.opponentLoadout.usedCoins + " / " + GameManager.opponentLoadout.coins;
 
@@ -140,6 +149,26 @@ export default class PurchaseHub extends Phaser.GameObjects.Sprite {
         this.opponentLoadout.visible = visible;
         this.playerReadyBtn.visible = visible;
         this.opponentReadyLabel.visible = visible;
+
+        GameManager.playerLoadout.ready = !visible;
+        if(GameManager.playerLoadout.ready) {
+            (this.playerReadyBtn.getChildByID("readyBtn") as HTMLInputElement).style.color = "#181c28";
+            (this.playerReadyBtn.getChildByID("readyBtn") as HTMLInputElement).style.backgroundColor = "#70d38b";    
+        }
+        else {
+            (this.playerReadyBtn.getChildByID("readyBtn") as HTMLInputElement).style.color = "#70d38b";
+            (this.playerReadyBtn.getChildByID("readyBtn") as HTMLInputElement).style.backgroundColor = "#181c28";    
+        }
+
+        GameManager.opponentLoadout.ready = !visible;
+
+        this.purchaseHubVisible = visible;
+
+        if(visible){
+            Game.player.label.visible = !visible;
+            Game.opponent.label.visible = !visible;
+        }
+
     }
 
     update() {

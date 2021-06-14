@@ -54,6 +54,7 @@ export default class Game extends Phaser.Scene {
         this.load.html('readyBtn', 'html/purchaseHub/readyBtn.html');
         this.load.html('readyLabel', 'html/purchaseHub/readyLabel.html');
         this.load.html('textSmall', 'html/textSmall.html');
+        this.load.html('textLarge', 'html/textLarge.html');
         this.load.html('null', 'sprites/null.png');
         this.load.spritesheet('player', 'sprites/player.png', {frameWidth: 20, frameHeight: 20});
         this.load.spritesheet('playerTeleport', 'sprites/playerTeleport.png', {frameWidth: 14, frameHeight: 22});
@@ -71,8 +72,21 @@ export default class Game extends Phaser.Scene {
             this.purchaseHub.update();
 
             if(PurchaseHub.turns % PurchaseHub.purchaseTurnEvery == 0) {
+                
                 this.purchaseHub.update();
+                
+                if(!this.purchaseHub.purchaseHubVisible) {
+                    this.purchaseHub.updated = false;
+                    this.purchaseHub.updateDisplay(true);
+                }
+                
                 return;
+            }
+            else {
+                if(this.purchaseHub.purchaseHubVisible) {
+                    this.purchaseHub.updated = false;
+                    this.purchaseHub.updateDisplay(false);
+                }
             }
 
         }
@@ -205,8 +219,31 @@ export default class Game extends Phaser.Scene {
 
     startCountdown(scene:this, data:{delay:boolean}) {
 
+        this.paused = true;
+
+        console.log("Purchase Hub finished. Starting...");
         PurchaseHub.turns++;
 
+        let counter = this.add.dom(GameManager.width/2 - 45, 15).createFromCache('textLarge');
+
+        this.tweens.addCounter({
+            from:3,
+            to:0,
+            duration:3000,
+            onUpdate: (t) => {
+                let cnt = (Math.round(t.getValue())).toString();
+                if(cnt.length == 1) cnt = "0" + cnt;
+                (counter.getChildByID("text") as HTMLSpanElement).innerHTML = cnt;
+            },
+            onComplete: () => {
+                this.paused = false;
+                counter.destroy();
+                
+                Game.player.label.visible = true;
+                Game.opponent.label.visible = true;
+            },
+        });
+        
     }
 
     startGame(scene:this, data:{playerOne:IPlayer, playerTwo:IPlayer, gameBall:IGameBall}) {

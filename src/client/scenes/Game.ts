@@ -50,6 +50,7 @@ export default class Game extends Phaser.Scene {
         this.load.html('playerLabel', 'html/playerLabel.html');
         this.load.html('text', 'html/text.html');
         this.load.html('loadout', 'html/purchaseHub/loadout.html');
+        this.load.html('opponentLoadout', 'html/purchaseHub/opponentLoadout.html');
         this.load.html('coinText', 'html/purchaseHub/coins.html');
         this.load.html('readyBtn', 'html/purchaseHub/readyBtn.html');
         this.load.html('readyLabel', 'html/purchaseHub/readyLabel.html');
@@ -246,10 +247,11 @@ export default class Game extends Phaser.Scene {
         
     }
 
-    startGame(scene:this, data:{playerOne:IPlayer, playerTwo:IPlayer, gameBall:IGameBall}) {
+    startGame(scene:this, data:{playerOne:IPlayer, playerTwo:IPlayer, gameBall:IGameBall, maxBombs:number}) {
 
         console.log("Starting game.");
         scene.paused = false;
+        GameManager.maxBombs = data.maxBombs;
 
         if(scene.leftGoal && scene.rightGoal) {
         

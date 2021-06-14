@@ -36,7 +36,45 @@ export default class PurchaseHub extends Phaser.GameObjects.Sprite {
         PurchaseHub.turns = 0;
 
         this.playerLoadout = scene.add.dom(-500, -500).createFromCache('loadout').setOrigin(0, 0);
-        this.opponentLoadout = scene.add.dom(-500, -500).createFromCache('loadout').setOrigin(0, 0);
+        this.playerLoadout.addListener('click');
+        this.playerLoadout.on('click', (event) => {
+
+            if(event.target.name == "heroPrevious") {
+                GameManager.changeHero(true, true);
+            } else if(event.target.name == "heroNext") {
+                GameManager.changeHero(true, false);
+            }
+
+            if(event.target.name == "bombsMinus") {
+                
+                if(GameManager.playerLoadout.usedCoins > 0) {
+                    GameManager.playerLoadout.usedCoins--;
+                } else if(GameManager.playerLoadout.usedCoins <= 0) {
+                    return;
+                }
+
+                GameManager.playerLoadout.bombs--;
+                if(GameManager.playerLoadout.bombs < 0) GameManager.playerLoadout.bombs = 0;
+
+            } else if(event.target.name == "bombsPlus") {
+
+                if(GameManager.playerLoadout.usedCoins < GameManager.playerLoadout.coins) {
+                    GameManager.playerLoadout.usedCoins++;
+                } else if(GameManager.playerLoadout.usedCoins >= GameManager.playerLoadout.coins){
+                    return;
+                }
+
+                GameManager.playerLoadout.bombs++;
+                if(GameManager.playerLoadout.bombs > GameManager.maxBombs) GameManager.playerLoadout.bombs = GameManager.maxBombs;
+            }
+
+            this.updated = false;
+            this.updateDisplay(true);
+            GameManager.onlineRoom.send("updateLoadout", {loadout: GameManager.playerLoadout});
+
+        });
+
+        this.opponentLoadout = scene.add.dom(-500, -500).createFromCache('opponentLoadout').setOrigin(0, 0);
 
         this.playerCoins = scene.add.dom(-500, -500).createFromCache('coinText').setOrigin(0, 0);
         this.opponentCoins = scene.add.dom(-500, -500).createFromCache('coinText').setOrigin(0, 0);
@@ -134,13 +172,11 @@ export default class PurchaseHub extends Phaser.GameObjects.Sprite {
         (this.playerCoins.getChildByID("text") as HTMLSpanElement).innerHTML = "Coins: " + GameManager.playerLoadout.usedCoins + " / " + GameManager.playerLoadout.coins;
         (this.opponentCoins.getChildByID("text") as HTMLSpanElement).innerHTML = "Coins: " + GameManager.opponentLoadout.usedCoins + " / " + GameManager.opponentLoadout.coins;
 
-        (this.playerLoadout.getChildByID("hero") as HTMLSpanElement).innerHTML = GameManager.playerLoadout.hero;
+        (this.playerLoadout.getChildByID("hero") as HTMLSpanElement).innerHTML = GameManager.playerLoadout.hero.name;
         (this.playerLoadout.getChildByID("bombs") as HTMLSpanElement).innerHTML = GameManager.playerLoadout.bombs.toString();
-        (this.playerLoadout.getChildByID("specialBombs") as HTMLSpanElement).innerHTML =GameManager.playerLoadout.specialBombs.toString();
-
-        (this.opponentLoadout.getChildByID("hero") as HTMLSpanElement).innerHTML = GameManager.opponentLoadout.hero;
+        
+        (this.opponentLoadout.getChildByID("hero") as HTMLSpanElement).innerHTML = GameManager.opponentLoadout.hero.name;
         (this.opponentLoadout.getChildByID("bombs") as HTMLSpanElement).innerHTML = GameManager.opponentLoadout.bombs.toString();
-        (this.opponentLoadout.getChildByID("specialBombs") as HTMLSpanElement).innerHTML =GameManager.opponentLoadout.specialBombs.toString();
 
         this.playerCoins.visible = visible;
         this.opponentCoins.visible = visible;

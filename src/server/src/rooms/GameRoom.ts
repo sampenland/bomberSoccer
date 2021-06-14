@@ -1,10 +1,12 @@
 import { Room, Client } from "colyseus";
 import { Player } from "../classes/Player";
 import { World } from "../classes/World";
-import { IAdjustableSettings, IControls, IGameSettings, IReady } from "../interfaces/IClientServer";
+import { IAdjustableSettings, IControls, IGameSettings, ILoadout, IReady } from "../interfaces/IClientServer";
 import { GameRoomState } from "./schema/GameRoomState";
 
 export class GameRoom extends Room<GameRoomState> {
+
+  static maxBombs:number = 20;
 
   onCreate (options: any) {
 
@@ -24,6 +26,22 @@ export class GameRoom extends Room<GameRoomState> {
       });
 
       this.broadcast("adjustedSettings", settings);
+
+    });
+
+    this.onMessage("updateLoadout", (client:Client, data:ILoadout) => {
+
+      this.state.players.forEach((player) => {
+
+        if(player.id == client.sessionId) {
+
+          if(data.loadout.bombs < 0) data.loadout.bombs = 0;
+          if(data.loadout.bombs > GameRoom.maxBombs) data.loadout.bombs = GameRoom.maxBombs;
+          player.bombsAvailable = data.loadout.bombs;
+
+        }
+      
+      });
 
     });
 
@@ -49,6 +67,7 @@ export class GameRoom extends Room<GameRoomState> {
 
         this.state.players.forEach((player) => {
           player.ready = false;
+          if(player.name == "CPU") player.ready = true;
         });
 
       }
@@ -99,6 +118,7 @@ export class GameRoom extends Room<GameRoomState> {
           playerOne: this.state.players[0],
           playerTwo: this.state.players[1],
           gameBall: this.state.gameWorld.gameBall,
+          maxBombs: GameRoom.maxBombs
         });
         
       }

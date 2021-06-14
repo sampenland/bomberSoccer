@@ -4,7 +4,7 @@ export interface ILoadout {
 
     coins:number;
     usedCoins:number;
-    hero:string;
+    hero:{name:string, val:number};
     bombs:number;
     specialBombs:number;
 

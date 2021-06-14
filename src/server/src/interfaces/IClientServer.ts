@@ -6,6 +6,20 @@ export interface IControls {
     middlePressed:boolean;
 }
 
+export interface ILoadout {
+
+    loadout:{
+        coins:number;
+        usedCoins:number;
+        hero:{name:string, val:number};
+        bombs:number;
+        specialBombs:number;
+
+        ready:boolean;
+    }
+
+}
+
 export interface IGameSettings {
     gameSize:{width:number, height:number};
     borderSize:number;

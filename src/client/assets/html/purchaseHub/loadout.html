@@ -4,6 +4,10 @@
         font-size: 5px;
         color:#181c28;
     }
+    span {
+        margin-right: 2px;
+        margin-left: 2px;;
+    }
 </style>
 
 <div class="loadout">
@@ -13,15 +17,19 @@
     <table>
         <tr>
             <td style="width:60px;">Hero: </td>
-            <td><span id="hero">Hero</span><img src="../../sprites/arrow-right-square-fill.svg" alt="Bootstrap" width="4" height="4"></td>
+            <td>
+                <img id="heroPrevious" src="../../sprites/arrow-left-square-fill.svg" alt="Bootstrap" width="4" height="4">
+                <span id="hero">Hero</span>
+                <img id="heroNext" src="../../sprites/arrow-right-square-fill.svg" alt="Bootstrap" width="4" height="4">
+            </td>
         </tr>
         <tr>
             <td>Bombs: </td>
-            <td><span id="bombs">Bombs</span></td>
-        </tr>
-        <tr>
-            <td>Special Bombs: </td>
-            <td><span id="specialBombs">S. Bombs</span></td>
+            <td>
+                <img id="heroPrevious" src="../../sprites/arrow-left-square-fill.svg" alt="Bootstrap" width="4" height="4">
+                <span id="bombs">Bombs</span>
+                <img id="heroNext" src="../../sprites/arrow-right-square-fill.svg" alt="Bootstrap" width="4" height="4">
+            </td>
         </tr>
 
     </table>

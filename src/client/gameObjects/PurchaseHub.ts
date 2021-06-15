@@ -39,9 +39,9 @@ export default class PurchaseHub extends Phaser.GameObjects.Sprite {
         this.playerLoadout.addListener('click');
         this.playerLoadout.on('click', (event) => {
 
-            if(event.target.name == "heroPrevious") {
+            if(event.target.name == "specialPrevious") {
                 GameManager.changeSpecial(true, true);
-            } else if(event.target.name == "heroNext") {
+            } else if(event.target.name == "specialNext") {
                 GameManager.changeSpecial(true, false);
             }
 

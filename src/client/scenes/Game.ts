@@ -383,7 +383,13 @@ export default class Game extends Phaser.Scene {
 
     createBomb(scene:this, data:IBombDrop){
 
+        //drop bomb
         let newBomb = new RealBomb(this, data.player.x, data.player.y, data.bombId, data.player.id, data.explodeDelay);
+        
+        if(data.isSpecial) {
+            newBomb.bombType = data.special;
+        }
+
         this.bombs.set(data.bombId, newBomb);
 
     }
@@ -392,7 +398,6 @@ export default class Game extends Phaser.Scene {
     {
         let theBomb = this.bombs.get(data.bombId);
         if(theBomb == undefined) return;
-        console.log(data.explodeScale);
         theBomb.explode(data.explodeScale);
     }
 

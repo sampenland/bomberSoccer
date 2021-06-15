@@ -55,6 +55,8 @@ export interface IBombDrop {
     bombId:number;
     player:IPlayer;
     explodeDelay:number;
+    isSpecial:boolean;
+    special:number;
 }
 
 export interface IWorld {

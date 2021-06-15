@@ -4,6 +4,20 @@ import Matter from "matter-js";
 import { GameRoomState } from "../rooms/schema/GameRoomState";
 import { World } from "./World";
 
+export class SpecialType {
+
+    static count = 2;
+    static instant = {name: "Instanta", val: 1};
+    static inverter = {name: "Inverter", val: 2};
+
+    static getSpecialType(val:number) {
+        if(val == 1) return SpecialType.instant;
+        if(val == 2) return SpecialType.inverter;
+        return SpecialType.instant;
+    }
+
+}
+
 export class Player extends Schema {
     
     @type("string")
@@ -31,11 +45,14 @@ export class Player extends Schema {
     bombsAvailable:number;
 
     @type("number")
+    special:number;
+
+    @type("number")
     score:number = 0;
 
     @type("number")
     instantBombsAvailable:number = 1;
-    canDropInstant:boolean = true;
+    canDropSpecial:boolean = true;
 
     body:Matter.Body;
     @type("number")
@@ -103,32 +120,51 @@ export class Player extends Schema {
         this.placedBombs.splice(this.placedBombs.indexOf(id), 1);
     }
 
-    dropBomb(instant?:boolean) {
+    dropBomb(isSpecial:boolean) {
         
-        if(instant && this.canDropInstant) 
-        {
-            this.canDropInstant = false;
-            setTimeout(() => {
-                this.canDropInstant = true;
-            }, this.gameWorld.state.settings.instantBombReset);
-        }
-        else if(instant && !this.canDropInstant)
-        {
-            return;
-        }
-        else
-        {
-            if(this.bombsAvailable != -1)
+        const instant = SpecialType.getSpecialType(this.special) == SpecialType.instant;
+        const inverter = SpecialType.getSpecialType(this.special) == SpecialType.inverter;
+
+        if(isSpecial) {
+
+            // instant bomb            
+            if(instant && this.canDropSpecial) 
             {
-                if(this.bombsAvailable < 1) {
-                    return;
-                }
-                else
-                {
-                    this.bombsAvailable--;
-                }
+                this.canDropSpecial = false;
+                setTimeout(() => {
+                    this.canDropSpecial = true;
+                }, this.gameWorld.state.settings.specialBombReset);
             }
-        }        
+            else if(instant && !this.canDropSpecial)
+            {
+                return;
+            }
+
+            // inverter
+            if(inverter && this.canDropSpecial) 
+            {
+                this.canDropSpecial = false;
+                setTimeout(() => {
+                    this.canDropSpecial = true;
+                }, this.gameWorld.state.settings.specialBombReset);
+            }
+            else if(inverter && !this.canDropSpecial)
+            {
+                return;
+            }
+
+        }
+
+        if(this.bombsAvailable != -1)
+        {
+            if(this.bombsAvailable < 1) {
+                return;
+            }
+            else
+            {
+                this.bombsAvailable--;
+            }
+        }
 
         let hasId = false;
         let id = -1;
@@ -149,23 +185,29 @@ export class Player extends Schema {
         let bombY = this.y;
 
         let explodeTime = this.gameWorld.state.settings.explodeTime;
-        if(instant) explodeTime = 10;
+        if(isSpecial && instant) explodeTime = 10;
 
         this.gameWorld.room.broadcast("bombDrop", {
             player:this,
             bombId: id,
-            explodeDelay: explodeTime
+            explodeDelay: explodeTime,
+            isSpecial: isSpecial,
+            special:this.special
         });
 
-        setTimeout(this.explodeBomb, explodeTime, this.gameWorld.room, id, bombX, bombY);
+        setTimeout(this.explodeBomb, explodeTime, this.gameWorld.room, id, bombX, bombY, isSpecial, this.special);
 
     }
 
-    explodeBomb(room:Room<GameRoomState>, id:string, bombX:number, bombY:number) {
+    explodeBomb(room:Room<GameRoomState>, id:string, bombX:number, bombY:number, isSpecial:boolean, special:number) {
 
         let scaleConstant = 12;
-        room.broadcast("explodeBomb", {bombId:id, explodeScale:room.state.settings.blastRadiusMax/scaleConstant});
-        room.state.gameWorld.gameBall.applyImpulse({x: bombX, y: bombY});
+        room.broadcast("explodeBomb", {
+            bombId:id, 
+            explodeScale:room.state.settings.blastRadiusMax/scaleConstant,
+        });
+
+        room.state.gameWorld.gameBall.applyImpulse({x: bombX, y: bombY}, (isSpecial && SpecialType.getSpecialType(special) == SpecialType.inverter));
 
     }
 

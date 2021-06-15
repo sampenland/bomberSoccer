@@ -59,7 +59,7 @@ export class GameBall extends Schema {
         this.update();
     }
 
-    applyImpulse(bomb:IBomb){
+    applyImpulse(bomb:IBomb, invert?:boolean){
         
         let dir:{x:number, y:number} = {x: 0, y: 0};
 
@@ -71,6 +71,11 @@ export class GameBall extends Schema {
         
         dir.x *= (50/distance) * this.gameWorld.state.settings.blastMagnitude;
         dir.y *= (50/distance) * this.gameWorld.state.settings.blastMagnitude;
+
+        if(invert) {
+            dir.x *= -1;
+            dir.y *= -1;
+        }
 
         Matter.Body.setVelocity(this.body, { x: dir.x, y: dir.y });
 

@@ -2,10 +2,17 @@ import * as Colyseus from 'colyseus.js'
 import {Client} from 'colyseus.js'
 import { ILoadout } from '../interfaces/ILoadout';
 
-export class HeroType {
+export class SpecialType {
+    
     static count = 2;
-    static instant = {name: "Instant", val: 1};
-    static gravity = {name: "Gravity", val: 2};
+    static instant = {name: "Instanta", val: 1};
+    static inverter = {name: "Inverter", val: 2};
+
+    static getSpecialType(val:number) {
+        if(val == 1) return SpecialType.instant;
+        if(val == 2) return SpecialType.inverter;
+        return SpecialType.instant;
+    }
 }
 
 export default class GameManager {
@@ -43,30 +50,28 @@ export default class GameManager {
     public static playerLoadout:ILoadout = {
         coins:1,
         usedCoins:0,
-        bombs:10,
-        specialBombs: 1,
-        hero: HeroType.instant,
+        bombs:6,
+        special: SpecialType.instant,
         ready: false
     };
     public static opponentLoadout:ILoadout = {
         coins:2,
         usedCoins:0,
-        bombs:10,
-        specialBombs: 2,
-        hero: HeroType.gravity,
+        bombs:6,
+        special: SpecialType.inverter,
         ready: false
     };
 
-    public static changeHero(player:boolean, next:boolean) {
+    public static changeSpecial(player:boolean, next:boolean) {
 
         if(player) {
 
-            let val = GameManager.playerLoadout.hero.val;
+            let val = GameManager.playerLoadout.special.val;
             if(next) {
 
                 val++
 
-                if(val > HeroType.count) {
+                if(val > SpecialType.count) {
                     val = 1;
                 }
             
@@ -74,22 +79,22 @@ export default class GameManager {
 
                 val++
 
-                if(val > HeroType.count) {
+                if(val > SpecialType.count) {
                     val = 1;
                 }
 
             }
 
-            GameManager.playerLoadout.hero = this.getHeroType(val);
+            GameManager.playerLoadout.special = SpecialType.getSpecialType(val);
 
         } else {
 
-            let val = GameManager.opponentLoadout.hero.val;
+            let val = GameManager.opponentLoadout.special.val;
             if(next) {
 
                 val++
 
-                if(val > HeroType.count) {
+                if(val > SpecialType.count) {
                     val = 1;
                 }
             
@@ -97,22 +102,16 @@ export default class GameManager {
 
                 val++
 
-                if(val > HeroType.count) {
+                if(val > SpecialType.count) {
                     val = 1;
                 }
 
             }
 
-            GameManager.opponentLoadout.hero = this.getHeroType(val);
+            GameManager.opponentLoadout.special = SpecialType.getSpecialType(val);
 
         }
 
-    }
-
-    private static getHeroType(val:number) {
-        if(val == 1) return HeroType.instant;
-        if(val == 2) return HeroType.gravity;
-        return HeroType.instant;
     }
 
 }

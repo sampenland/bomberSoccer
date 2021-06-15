@@ -38,6 +38,7 @@ export class GameRoom extends Room<GameRoomState> {
           if(data.loadout.bombs < 0) data.loadout.bombs = 0;
           if(data.loadout.bombs > GameRoom.maxBombs) data.loadout.bombs = GameRoom.maxBombs;
           player.bombsAvailable = data.loadout.bombs;
+          player.special = data.loadout.special.val
 
         }
       
@@ -87,7 +88,7 @@ export class GameRoom extends Room<GameRoomState> {
           explodeTime: 1000,
           gameBallMass: 4,
           bombsAvailable: 10,
-          instantBombReset: 5000,
+          specialBombReset: 5000,
           moveDelay:0,
           solidPlayers: 0,
           goalSize:gameSettings.goalSize,
@@ -172,7 +173,7 @@ export class GameRoom extends Room<GameRoomState> {
           if(message.rightPressed) {
             this.broadcast("opponentPosition", {x:player.x, y:player.y}, {except: client});
             player.setPosition(message.mouseX, message.mouseY);
-            player.dropBomb();
+            player.dropBomb(false);
           }
 
         }

@@ -11,7 +11,7 @@ export interface ILoadout {
     loadout:{
         coins:number;
         usedCoins:number;
-        hero:{name:string, val:number};
+        special:{name:string, val:number};
         bombs:number;
         specialBombs:number;
 
@@ -43,7 +43,7 @@ export interface IAdjustableSettings {
     explodeTime:number;
     gameBallMass:number;
     bombsAvailable:number;
-    instantBombReset:number;
+    specialBombReset:number;
     moveDelay:number;
     solidPlayers:number;
     goalSize:number;

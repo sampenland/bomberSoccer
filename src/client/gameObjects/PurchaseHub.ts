@@ -40,9 +40,9 @@ export default class PurchaseHub extends Phaser.GameObjects.Sprite {
         this.playerLoadout.on('click', (event) => {
 
             if(event.target.name == "heroPrevious") {
-                GameManager.changeHero(true, true);
+                GameManager.changeSpecial(true, true);
             } else if(event.target.name == "heroNext") {
-                GameManager.changeHero(true, false);
+                GameManager.changeSpecial(true, false);
             }
 
             if(event.target.name == "bombsMinus") {
@@ -172,10 +172,10 @@ export default class PurchaseHub extends Phaser.GameObjects.Sprite {
         (this.playerCoins.getChildByID("text") as HTMLSpanElement).innerHTML = "Coins: " + GameManager.playerLoadout.usedCoins + " / " + GameManager.playerLoadout.coins;
         (this.opponentCoins.getChildByID("text") as HTMLSpanElement).innerHTML = "Coins: " + GameManager.opponentLoadout.usedCoins + " / " + GameManager.opponentLoadout.coins;
 
-        (this.playerLoadout.getChildByID("hero") as HTMLSpanElement).innerHTML = GameManager.playerLoadout.hero.name;
+        (this.playerLoadout.getChildByID("hero") as HTMLSpanElement).innerHTML = GameManager.playerLoadout.special.name;
         (this.playerLoadout.getChildByID("bombs") as HTMLSpanElement).innerHTML = GameManager.playerLoadout.bombs.toString();
         
-        (this.opponentLoadout.getChildByID("hero") as HTMLSpanElement).innerHTML = GameManager.opponentLoadout.hero.name;
+        (this.opponentLoadout.getChildByID("hero") as HTMLSpanElement).innerHTML = GameManager.opponentLoadout.special.name;
         (this.opponentLoadout.getChildByID("bombs") as HTMLSpanElement).innerHTML = GameManager.opponentLoadout.bombs.toString();
 
         this.playerCoins.visible = visible;

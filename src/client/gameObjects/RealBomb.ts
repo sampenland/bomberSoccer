@@ -1,5 +1,5 @@
 import Colors from "../globals/Colors";
-import GameManager from "../globals/GameManager";
+import GameManager, { SpecialType } from "../globals/GameManager";
 import Game from "../scenes/Game";
 import Player from "./Player";
 
@@ -11,6 +11,8 @@ export default class RealBomb extends Phaser.GameObjects.Sprite {
     trajectory:Phaser.GameObjects.Graphics;
     explodeSizeStart:number = 12;
     explodeDuration:number = 100;
+
+    bombType:number = 1;
 
     constructor(scene:Phaser.Scene, x:number, y:number, id:number, playerId:string, explodeDelay:number)
     {
@@ -62,7 +64,13 @@ export default class RealBomb extends Phaser.GameObjects.Sprite {
                     dir.x = (Game.gameBall.x - this.x) * 2;
                     dir.y = (Game.gameBall.y - this.y) * 2;
                     
-                    this.trajectory.lineBetween(this.x, this.y, Game.gameBall.x + dir.x, Game.gameBall.y + dir.y);
+                    if(SpecialType.getSpecialType(this.bombType) == SpecialType.inverter) {
+                        dir.x = (this.x - Game.gameBall.x) * 2;
+                        dir.y = (this.y - Game.gameBall.y) * 2;
+                        this.trajectory.lineBetween(Game.gameBall.x, Game.gameBall.y, this.x + dir.x, this.y + dir.y);
+                    } else {
+                        this.trajectory.lineBetween(this.x, this.y, Game.gameBall.x + dir.x, Game.gameBall.y + dir.y);
+                    }
                 }
 
             },
@@ -78,9 +86,20 @@ export default class RealBomb extends Phaser.GameObjects.Sprite {
     explode(scale:number) {
         
         this.visible = false;
+        
+        let start = this.explodeSizeStart * scale;
+        let end = this.explodeSizeStart;
+
+        if(SpecialType.getSpecialType(this.bombType) == SpecialType.inverter)
+        {
+            let temp = start;
+            start = end;
+            end = temp;
+        }
+
         this.scene.tweens.addCounter({
-            to: this.explodeSizeStart * scale,
-            from: this.explodeSizeStart,
+            to: start,
+            from: end,
             duration: this.explodeDuration,
             onUpdate: (v) => {
                 this.drawer.clear();

@@ -69,6 +69,8 @@ export default class GameBall extends Phaser.GameObjects.Sprite {
         this.phyBody.velocity.x = velX;
         this.phyBody.velocity.y = velY;
 
+        if(this.netX == this.x && this.netY == this.y) return;
+
         // this.netX = x;
         // this.netY = y;
 

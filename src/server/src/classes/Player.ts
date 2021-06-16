@@ -210,7 +210,7 @@ export class Player extends Schema {
 
         if(player.placedBombs.length == 0) return;
 
-        let scaleConstant = 12;
+        let scaleConstant = 16;
         room.broadcast("explodeBomb", {
             bombId:id, 
             explodeScale:room.state.settings.blastRadiusMax/scaleConstant,

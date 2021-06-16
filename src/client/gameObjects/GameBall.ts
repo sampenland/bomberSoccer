@@ -12,7 +12,7 @@ export default class GameBall extends Phaser.GameObjects.Sprite {
 
     label:Phaser.GameObjects.DOMElement;
 
-    phyBody:MatterJS.BodyType | undefined;
+    phyBody:MatterJS.BodyType;
 
     netX:number = -100;
     netY:number = -100;
@@ -31,6 +31,8 @@ export default class GameBall extends Phaser.GameObjects.Sprite {
 
         this.label = scene.add.dom(0, 0).createFromCache('text').setOrigin(0, 0);
         this.label.setPosition(15, GameManager.height - 15);
+
+        this.phyBody = scene.matter.add.circle(GameManager.width/2, GameManager.height/2, 10, {isStatic: false});
 
     }
 
@@ -64,17 +66,15 @@ export default class GameBall extends Phaser.GameObjects.Sprite {
 
     updateNetPosition(x:number, y:number, velX:number, velY:number) {
 
-        if(this.phyBody) {
-            this.phyBody.velocity.x = velX;
-            this.phyBody.velocity.y = velY;
-        }
+        this.phyBody.velocity.x = velX;
+        this.phyBody.velocity.y = velY;
 
-        this.netX = x;
-        this.netY = y;
+        // this.netX = x;
+        // this.netY = y;
 
-        const lerpSpeed = 0.75;
-        this.x = Phaser.Math.Linear(this.x, this.netX, lerpSpeed);
-        this.y = Phaser.Math.Linear(this.y, this.netY, lerpSpeed);
+        // const lerpSpeed = 0.75;
+        // this.x = Phaser.Math.Linear(this.x, this.netX, lerpSpeed);
+        // this.y = Phaser.Math.Linear(this.y, this.netY, lerpSpeed);
 
     }
 

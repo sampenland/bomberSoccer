@@ -69,7 +69,7 @@ export class World extends Schema {
         this.gameBall.body = Matter.Bodies.circle(this.width/2, this.height/2, 24 * World.scaleCorrection, {
             mass: this.state.settings.gameBallMass,
             frictionAir: this.state.settings.airFriction,
-            restitution: .8,
+            restitution: this.state.settings.bounce,
             label:"gameBall",
         });
         this.gameBall.update();
@@ -113,6 +113,14 @@ export class World extends Schema {
 
             });
 
+        });
+
+    }
+
+    reset() {
+
+        this.state.players.forEach( (player) => {
+            player.clearBombs();
         });
 
     }

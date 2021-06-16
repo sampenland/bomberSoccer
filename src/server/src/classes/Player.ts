@@ -106,7 +106,14 @@ export class Player extends Schema {
 
     scoreGoal() {
         this.gameWorld.room.broadcast("score", {});
+        this.gameWorld.reset();
         this.score++;
+    }
+
+    clearBombs() {
+
+        this.placedBombs = new Array<number>();
+
     }
 
     setPosition(x:number, y:number) {
@@ -195,11 +202,13 @@ export class Player extends Schema {
             special:this.special
         });
 
-        setTimeout(this.explodeBomb, explodeTime, this.gameWorld.room, id, bombX, bombY, isSpecial, this.special);
+        setTimeout(this.explodeBomb, explodeTime, this.gameWorld.room, id, bombX, bombY, isSpecial, this.special, this);
 
     }
 
-    explodeBomb(room:Room<GameRoomState>, id:string, bombX:number, bombY:number, isSpecial:boolean, special:number) {
+    explodeBomb(room:Room<GameRoomState>, id:string, bombX:number, bombY:number, isSpecial:boolean, special:number, player:this) {
+
+        if(player.placedBombs.length == 0) return;
 
         let scaleConstant = 12;
         room.broadcast("explodeBomb", {

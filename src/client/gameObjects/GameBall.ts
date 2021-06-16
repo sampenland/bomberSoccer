@@ -12,9 +12,16 @@ export default class GameBall extends Phaser.GameObjects.Sprite {
 
     label:Phaser.GameObjects.DOMElement;
 
+    phyBody:MatterJS.BodyType | undefined;
+
+    netX:number = -100;
+    netY:number = -100;
+
     constructor(scene:Phaser.Scene) {
 
-        super(scene, -100, -100, 'gameBall');
+        super(scene, -100, -100, '');
+        this.visible = false;
+        
         scene.add.existing(this);
         this.velocityX = 0;
         this.velocityY = 0;
@@ -55,9 +62,29 @@ export default class GameBall extends Phaser.GameObjects.Sprite {
 
     }
 
+    updateNetPosition(x:number, y:number, velX:number, velY:number) {
+
+        if(this.phyBody) {
+            this.phyBody.velocity.x = velX;
+            this.phyBody.velocity.y = velY;
+        }
+
+        this.netX = x;
+        this.netY = y;
+
+        const lerpSpeed = 0.75;
+        this.x = Phaser.Math.Linear(this.x, this.netX, lerpSpeed);
+        this.y = Phaser.Math.Linear(this.y, this.netY, lerpSpeed);
+
+    }
+
     update() {
 
         this.drawer.clear();
+        
+        this.drawer.fillStyle(0xcbffd8, 1);
+        this.drawer.fillCircle(this.x, this.y, this.radius);
+
         this.drawer.lineBetween(this.x, this.y, this.x + this.velocityX * 100, this.y + this.velocityY * 100);
 
         if(GameManager.debug) {

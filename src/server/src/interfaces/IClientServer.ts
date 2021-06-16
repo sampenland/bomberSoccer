@@ -48,5 +48,8 @@ export interface IAdjustableSettings {
     solidPlayers:number;
     goalSize:number;
     airFriction:number;
+    bounce:number;
+    ballSize:number;
+    netcode:string;
 
 }

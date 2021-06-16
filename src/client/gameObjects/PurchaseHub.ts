@@ -172,10 +172,10 @@ export default class PurchaseHub extends Phaser.GameObjects.Sprite {
         (this.playerCoins.getChildByID("text") as HTMLSpanElement).innerHTML = "Coins: " + GameManager.playerLoadout.usedCoins + " / " + GameManager.playerLoadout.coins;
         (this.opponentCoins.getChildByID("text") as HTMLSpanElement).innerHTML = "Coins: " + GameManager.opponentLoadout.usedCoins + " / " + GameManager.opponentLoadout.coins;
 
-        (this.playerLoadout.getChildByID("hero") as HTMLSpanElement).innerHTML = GameManager.playerLoadout.special.name;
+        (this.playerLoadout.getChildByID("special") as HTMLSpanElement).innerHTML = GameManager.playerLoadout.special.name;
         (this.playerLoadout.getChildByID("bombs") as HTMLSpanElement).innerHTML = GameManager.playerLoadout.bombs.toString();
         
-        (this.opponentLoadout.getChildByID("hero") as HTMLSpanElement).innerHTML = GameManager.opponentLoadout.special.name;
+        (this.opponentLoadout.getChildByID("special") as HTMLSpanElement).innerHTML = GameManager.opponentLoadout.special.name;
         (this.opponentLoadout.getChildByID("bombs") as HTMLSpanElement).innerHTML = GameManager.opponentLoadout.bombs.toString();
 
         this.playerCoins.visible = visible;

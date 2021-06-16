@@ -19,6 +19,9 @@ export class GameRoom extends Room<GameRoomState> {
 
       this.state.settings = settings;
       this.state.gameWorld.gameBall.body.frictionAir = settings.airFriction;
+      this.state.gameWorld.gameBall.body.restitution = settings.bounce;
+      this.state.gameWorld.gameBall.body.circleRadius = settings.ballSize * World.scaleCorrection;
+      this.state.gameWorld.gameBall.radius = settings.ballSize * World.scaleCorrection;
 
       this.state.players.forEach((p) => {
         p.changeSolid(settings.solidPlayers == 1);
@@ -93,6 +96,9 @@ export class GameRoom extends Room<GameRoomState> {
           solidPlayers: 0,
           goalSize:gameSettings.goalSize,
           airFriction:0.022,
+          bounce:0.8,
+          ballSize: 1, // refer below where this is set properly
+          netcode: "0",
         };
 
         this.state.gameWorld = new World(gameSettings.gameSize.width, 
@@ -100,6 +106,8 @@ export class GameRoom extends Room<GameRoomState> {
           gameSettings.borderSize, 
           gameSettings.goalSize, 
           this.state, this);
+
+        this.state.settings.ballSize = 24 * World.scaleCorrection;
 
         this.broadcast("adjustedSettings", this.state.settings);
 

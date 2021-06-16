@@ -140,6 +140,10 @@ export default class Game extends Phaser.Scene {
 
     score(scene:this, data:any) {
 
+        this.bombs.forEach( (bomb) => {
+            bomb.remove();
+        });
+
         if(scene.purchaseHub) {
             scene.purchaseHub.updated = false;
         }
@@ -354,7 +358,14 @@ export default class Game extends Phaser.Scene {
     updateGameBall(gameBall:IGameBall) {
 
         if(gameBall == undefined) return;
-        Game.gameBall.setPosition(gameBall.x, gameBall.y);
+
+        if(GameManager.netcode) {
+            Game.gameBall.updateNetPosition(gameBall.x, gameBall.y, gameBall.velocityX, gameBall.velocityY);
+        }
+        else {
+            Game.gameBall.setPosition(gameBall.x, gameBall.y);
+        }
+
         Game.gameBall.radius = gameBall.radius + 4;
         Game.gameBall.velocityX = gameBall.velocityX;
         Game.gameBall.velocityY = gameBall.velocityY;
@@ -409,9 +420,16 @@ export default class Game extends Phaser.Scene {
         let centerYline = this.add.rectangle(GameManager.width/2 - 1, 0, 1, GameManager.height, Colors.gray.color32).setOrigin(0, 0);
 
         let top = this.add.rectangle(0, 0, GameManager.width, GameManager.borderSize, Colors.darkGray.color32).setOrigin(0, 0);
+        let topBody = this.matter.add.rectangle(top.x + top.width/2, top.y + top.height/2, top.width, top.height, {isStatic: true});
+
         let bottom = this.add.rectangle(0, GameManager.height - GameManager.borderSize, GameManager.width, GameManager.borderSize, Colors.darkGray.color32).setOrigin(0, 0);
+        let bottomBody = this.matter.add.rectangle(bottom.x + bottom.width/2, bottom.y + bottom.height/2, bottom.width, bottom.height, {isStatic: true});
+
         let left = this.add.rectangle(0, 0, GameManager.borderSize, GameManager.height, Colors.darkGray.color32).setOrigin(0, 0);
+        let leftBody = this.matter.add.rectangle(left.x + left.width/2, left.y + left.height/2, left.width, left.height, {isStatic: true});
+
         let right = this.add.rectangle(GameManager.width - GameManager.borderSize, 0, GameManager.borderSize, GameManager.height, Colors.darkGray.color32).setOrigin(0, 0);
+        let rightBody = this.matter.add.rectangle(right.x + right.width/2, right.y + right.height/2, right.width, right.height, {isStatic: true});
 
         this.leftGoal = this.add.rectangle(0, GameManager.height/2 - GameManager.goalSize/2, GameManager.borderSize, GameManager.goalSize, Colors.white.color32).setOrigin(0, 0);
         this.rightGoal = this.add.rectangle(GameManager.width - GameManager.borderSize, GameManager.height/2 - GameManager.goalSize/2, GameManager.borderSize, GameManager.goalSize, Colors.white.color32).setOrigin(0, 0);
@@ -475,6 +493,9 @@ export default class Game extends Phaser.Scene {
                 var goalSize = (this.settings.getChildByName('goalSize') as HTMLInputElement).value;
                 var airFriction = (this.settings.getChildByName('airFriction') as HTMLInputElement).value;
                 var bombsAvailable = parseInt((this.settings.getChildByName('bombsAvailable') as HTMLInputElement).value);
+                var bounce = (this.settings.getChildByName('bounce') as HTMLInputElement).value;
+                var ballSize = (this.settings.getChildByName('ballSize') as HTMLInputElement).value;
+                var netcode = (this.settings.getChildByName('netcode') as HTMLInputElement).value;
 
                 GameManager.onlineRoom.send("adjustedSettings", {
                     blastRadiusMax:blastRadius,
@@ -485,7 +506,10 @@ export default class Game extends Phaser.Scene {
                     solidPlayers:solidPlayers,
                     goalSize:goalSize,
                     airFriction:airFriction,
-                    bombsAvailable:bombsAvailable
+                    bombsAvailable:bombsAvailable,
+                    bounce:bounce,
+                    ballSize:ballSize,
+                    netcode:netcode,
                 });
             }
 
@@ -510,10 +534,28 @@ export default class Game extends Phaser.Scene {
         (scene.settings.getChildByName('solidPlayers') as HTMLInputElement).value = data.solidPlayers.toString();
         (scene.settings.getChildByName('airFriction') as HTMLInputElement).value = data.airFriction.toString();
         (scene.settings.getChildByName('bombsAvailable') as HTMLInputElement).value = data.bombsAvailable.toString();
+        (scene.settings.getChildByName('bounce') as HTMLInputElement).value = data.bounce.toString();
+        (scene.settings.getChildByName('ballSize') as HTMLInputElement).value = data.ballSize.toString();
+        (scene.settings.getChildByName('netcode') as HTMLInputElement).value = data.netcode.toString();
 
         GameManager.airFriction = data.airFriction;
         GameManager.blastDistance = data.blastRadiusMax;
         GameManager.solidPlayers = data.solidPlayers.toString() == "1";
+        GameManager.netcode = data.netcode.toString() == "1";
+
+        if(Game.gameBall.phyBody == undefined) {
+            Game.gameBall.phyBody = this.matter.add.circle(Game.gameBall.x, Game.gameBall.y, data.ballSize);
+        }
+        else {
+            Game.gameBall.phyBody.circleRadius = data.ballSize;
+        }
+
+        if(GameManager.netcode) {
+            Game.gameBall.phyBody.isSensor = false;
+        }
+        else {
+            Game.gameBall.phyBody.isSensor = true;
+        }
 
         (scene.settings.getChildByName('goalSize') as HTMLInputElement).value = data.goalSize.toString();
         this.updateGoals(data.goalSize);

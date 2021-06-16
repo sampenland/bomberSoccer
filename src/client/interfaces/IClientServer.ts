@@ -38,6 +38,9 @@ export interface IAdjustableSettings {
     goalSize:number;
     airFriction:number;
     bombsAvailable:number;
+    bounce:number;
+    ballSize:number;
+    netcode:number;
 }
 
 export interface IGameBall {

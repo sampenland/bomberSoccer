@@ -13,6 +13,8 @@ export default class RealBomb extends Phaser.GameObjects.Sprite {
     explodeDuration:number = 100;
 
     bombType:number = 1;
+    explodeTween:Phaser.Tweens.Tween | undefined;
+    countDownTween:Phaser.Tweens.Tween | undefined;
 
     constructor(scene:Phaser.Scene, x:number, y:number, id:number, playerId:string, explodeDelay:number)
     {
@@ -44,7 +46,7 @@ export default class RealBomb extends Phaser.GameObjects.Sprite {
         this.anims.play('bombBurning');
         scene.add.existing(this);
 
-        this.scene.tweens.addCounter({
+        this.countDownTween = this.scene.tweens.addCounter({
             to: 0,
             from: 50,
             duration: explodeDelay,
@@ -97,7 +99,7 @@ export default class RealBomb extends Phaser.GameObjects.Sprite {
             end = temp;
         }
 
-        this.scene.tweens.addCounter({
+        this.explodeTween = this.scene.tweens.addCounter({
             to: start,
             from: end,
             duration: this.explodeDuration,
@@ -113,27 +115,21 @@ export default class RealBomb extends Phaser.GameObjects.Sprite {
         });
 
         return;
-        // old bomb explosion
-
-        if(this.anims != undefined) {
-            this.scale = scale;
-            this.alpha = 0.2;
-            this.anims.play('bombExplode');
-        }
-        
-        if(Game.player.id == this.playerId) {
-            GameManager.onlineRoom.send("removeBomb", {playerId:this.playerId, bombId:this.id});
-        }
-
-        this.on('animationcomplete', this.kill, this);
 
     }
 
-    kill(animation:Phaser.Animations.Animation, frame:number) {
+    remove() {
 
-        if(animation.key == 'bombExplode'){
-            this.destroy();
+        if(this.explodeTween) {
+            this.explodeTween.complete();
         }
+
+        if(this.countDownTween) {
+            this.countDownTween.complete();
+        }
+
+        this.destroy();
+
     }
 
 }

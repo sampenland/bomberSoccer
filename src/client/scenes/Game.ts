@@ -543,14 +543,11 @@ export default class Game extends Phaser.Scene {
         GameManager.solidPlayers = data.solidPlayers.toString() == "1";
         GameManager.netcode = data.netcode.toString() == "1";
 
-        Game.gameBall.phyBody.circleRadius = data.ballSize;
-
-        if(GameManager.netcode) {
-            Game.gameBall.phyBody.isSensor = false;
-        }
-        else {
-            Game.gameBall.phyBody.isSensor = true;
-        }
+        Game.gameBall.phyBody.setCircle(data.ballSize, {
+            restitution: data.bounce,
+            frictionAir: data.airFriction,
+            isSensor: !GameManager.netcode,
+        });
 
         (scene.settings.getChildByName('goalSize') as HTMLInputElement).value = data.goalSize.toString();
         this.updateGoals(data.goalSize);

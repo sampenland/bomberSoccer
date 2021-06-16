@@ -135,6 +135,7 @@ export class GameRoom extends Room<GameRoomState> {
     });
 
     this.onMessage("reset", () => {
+      
       this.state.gameWorld.gameBall.reset();
 
       this.state.players.forEach( (p) => {

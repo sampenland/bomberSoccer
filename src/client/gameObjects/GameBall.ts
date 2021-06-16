@@ -12,7 +12,9 @@ export default class GameBall extends Phaser.GameObjects.Sprite {
 
     label:Phaser.GameObjects.DOMElement;
 
-    phyBody:MatterJS.BodyType;
+    phyBody:Phaser.Physics.Matter.Image;
+
+    lerpSpeed:number = 0.90;
 
     netX:number = -100;
     netY:number = -100;
@@ -20,6 +22,9 @@ export default class GameBall extends Phaser.GameObjects.Sprite {
     constructor(scene:Phaser.Scene) {
 
         super(scene, -100, -100, '');
+        this.netX = GameManager.width/2;
+        this.netY = GameManager.height/2;
+        
         this.visible = false;
         
         scene.add.existing(this);
@@ -32,7 +37,9 @@ export default class GameBall extends Phaser.GameObjects.Sprite {
         this.label = scene.add.dom(0, 0).createFromCache('text').setOrigin(0, 0);
         this.label.setPosition(15, GameManager.height - 15);
 
-        this.phyBody = scene.matter.add.circle(GameManager.width/2, GameManager.height/2, 10, {isStatic: false});
+        this.phyBody = scene.matter.add.image(GameManager.width/2, GameManager.height/2, 'null').setOrigin(0.5, 0.5);
+        this.phyBody.visible = false;
+        scene.add.existing(this.phyBody);
 
     }
 
@@ -66,21 +73,23 @@ export default class GameBall extends Phaser.GameObjects.Sprite {
 
     updateNetPosition(x:number, y:number, velX:number, velY:number) {
 
-        this.phyBody.velocity.x = velX;
-        this.phyBody.velocity.y = velY;
+        console.log(x, y);
+        this.phyBody.setVelocity(velX, velY);
 
-        if(this.netX == this.x && this.netY == this.y) return;
+        if(this.netX == this.phyBody.x && this.netY == this.phyBody.y) return;
 
-        // this.netX = x;
-        // this.netY = y;
-
-        // const lerpSpeed = 0.75;
-        // this.x = Phaser.Math.Linear(this.x, this.netX, lerpSpeed);
-        // this.y = Phaser.Math.Linear(this.y, this.netY, lerpSpeed);
+        this.netX = x;
+        this.netY = y;
 
     }
 
     update() {
+
+        this.phyBody.x = Phaser.Math.Linear(this.phyBody.x, this.netX, this.lerpSpeed);
+        this.phyBody.y = Phaser.Math.Linear(this.phyBody.y, this.netY, this.lerpSpeed);
+
+        this.x = this.phyBody.x;
+        this.y = this.phyBody.y;
 
         this.drawer.clear();
         

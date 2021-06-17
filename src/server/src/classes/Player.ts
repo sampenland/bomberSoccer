@@ -51,6 +51,11 @@ export class Player extends Schema {
     score:number = 0;
 
     @type("number")
+    totalCoins:number = 1;
+    @type("number")
+    usedCoins:number = 0;
+
+    @type("number")
     instantBombsAvailable:number = 1;
     canDropSpecial:boolean = true;
 
@@ -67,6 +72,30 @@ export class Player extends Schema {
         this.id = id;
         this.ready = false;
         this.placedBombs = new Array<number>();
+
+    }
+
+    tryBuyBomb() {
+
+        if(this.usedCoins < this.totalCoins) {
+            this.usedCoins++;
+            this.bombsAvailable++;
+            return true;
+        }
+
+        return false;
+
+    }
+
+    trySellBomb() {
+
+        if(this.usedCoins > 0) {
+            this.usedCoins--;
+            this.bombsAvailable--;
+            return true;
+        }
+
+        return false;
 
     }
 

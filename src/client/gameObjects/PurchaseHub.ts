@@ -20,7 +20,7 @@ export default class PurchaseHub extends Phaser.GameObjects.Sprite {
     opponentReadyLabel:Phaser.GameObjects.DOMElement;
 
     updated:boolean = false;
-    purchaseHubVisible:boolean = true;
+    static purchaseHubVisible:boolean = true;
 
     constructor(scene:Phaser.Scene, padding:number, width:number, height:number) {
 
@@ -46,26 +46,9 @@ export default class PurchaseHub extends Phaser.GameObjects.Sprite {
             }
 
             if(event.target.name == "bombsMinus") {
-                
-                if(GameManager.playerLoadout.usedCoins > 0) {
-                    GameManager.playerLoadout.usedCoins--;
-                } else if(GameManager.playerLoadout.usedCoins <= 0) {
-                    return;
-                }
-
-                GameManager.playerLoadout.bombs--;
-                if(GameManager.playerLoadout.bombs < 0) GameManager.playerLoadout.bombs = 0;
-
+                GameManager.onlineRoom.send("trySellBomb", {});
             } else if(event.target.name == "bombsPlus") {
-
-                if(GameManager.playerLoadout.usedCoins < GameManager.playerLoadout.coins) {
-                    GameManager.playerLoadout.usedCoins++;
-                } else if(GameManager.playerLoadout.usedCoins >= GameManager.playerLoadout.coins){
-                    return;
-                }
-
-                GameManager.playerLoadout.bombs++;
-                if(GameManager.playerLoadout.bombs > GameManager.maxBombs) GameManager.playerLoadout.bombs = GameManager.maxBombs;
+                GameManager.onlineRoom.send("tryBuyBomb");
             }
 
             this.updated = false;
@@ -198,11 +181,17 @@ export default class PurchaseHub extends Phaser.GameObjects.Sprite {
 
         GameManager.opponentLoadout.ready = !visible;
 
-        this.purchaseHubVisible = visible;
+        PurchaseHub.purchaseHubVisible = visible;
 
         if(visible){
             Game.player.label.visible = !visible;
             Game.opponent.label.visible = !visible;
+        }
+
+        if(PurchaseHub.purchaseHubVisible) {
+            Game.gameBall.update();
+        } else {
+            Game.gameBall.phyBody.setPosition(GameManager.width/2, GameManager.height/2);
         }
 
     }

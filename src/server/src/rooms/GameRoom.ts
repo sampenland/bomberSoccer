@@ -20,8 +20,8 @@ export class GameRoom extends Room<GameRoomState> {
       this.state.settings = settings;
       this.state.gameWorld.gameBall.body.frictionAir = settings.airFriction;
       this.state.gameWorld.gameBall.body.restitution = settings.bounce;
-      this.state.gameWorld.gameBall.body.circleRadius = settings.ballSize * World.scaleCorrection;
-      this.state.gameWorld.gameBall.radius = settings.ballSize * World.scaleCorrection;
+      this.state.gameWorld.gameBall.body.circleRadius = settings.ballSize;
+      this.state.gameWorld.gameBall.radius = settings.ballSize;
 
       this.state.players.forEach((p) => {
         p.changeSolid(settings.solidPlayers == 1);
@@ -32,15 +32,52 @@ export class GameRoom extends Room<GameRoomState> {
 
     });
 
+    this.onMessage("tryBuyBomb", (client:Client, data:{}) => {
+
+      this.state.players.forEach((player) => {
+
+        if(player.id == client.sessionId) {
+
+          if(player.tryBuyBomb()) {
+            client.send("buyBomb", {
+              resultingBombs:player.bombsAvailable,
+              usedCoins:player.usedCoins,
+              coins:player.totalCoins
+            });
+          }
+
+        }
+      
+      });
+    
+    });
+
+    this.onMessage("trySellBomb", (client:Client, data:{}) => {
+
+        this.state.players.forEach((player) => {
+  
+          if(player.id == client.sessionId) {
+  
+            if(player.trySellBomb()) {
+              client.send("sellBomb", {
+                resultingBombs:player.bombsAvailable,
+                usedCoins:player.usedCoins,
+                coins:player.totalCoins
+              });
+            }
+  
+          }
+        
+        });
+      
+    });
+
     this.onMessage("updateLoadout", (client:Client, data:ILoadout) => {
 
       this.state.players.forEach((player) => {
 
         if(player.id == client.sessionId) {
 
-          if(data.loadout.bombs < 0) data.loadout.bombs = 0;
-          if(data.loadout.bombs > GameRoom.maxBombs) data.loadout.bombs = GameRoom.maxBombs;
-          player.bombsAvailable = data.loadout.bombs;
           player.special = data.loadout.special.val
 
         }
@@ -90,7 +127,7 @@ export class GameRoom extends Room<GameRoomState> {
           blastMagnitude: 0.05,
           explodeTime: 1000,
           gameBallMass: 4,
-          bombsAvailable: 10,
+          bombsAvailable: 6,
           specialBombReset: 5000,
           moveDelay:0,
           solidPlayers: 0,
@@ -98,7 +135,7 @@ export class GameRoom extends Room<GameRoomState> {
           airFriction:0.022,
           bounce:0.8,
           ballSize: 1, // refer below where this is set properly
-          netcode: "0",
+          netcode: "1",
         };
 
         this.state.gameWorld = new World(gameSettings.gameSize.width, 
@@ -107,7 +144,7 @@ export class GameRoom extends Room<GameRoomState> {
           gameSettings.goalSize, 
           this.state, this);
 
-        this.state.settings.ballSize = 24 * World.scaleCorrection;
+        this.state.settings.ballSize = 10;
 
         this.broadcast("adjustedSettings", this.state.settings);
 
@@ -140,6 +177,7 @@ export class GameRoom extends Room<GameRoomState> {
 
       this.state.players.forEach( (p) => {
         p.bombsAvailable = this.state.settings.bombsAvailable;
+        p.canDropSpecial = true;
         p.reset();
       });
 

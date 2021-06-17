@@ -76,7 +76,7 @@ export default class Game extends Phaser.Scene {
                 
                 this.purchaseHub.update();
                 
-                if(!this.purchaseHub.purchaseHubVisible) {
+                if(!PurchaseHub.purchaseHubVisible) {
                     this.purchaseHub.updated = false;
                     this.purchaseHub.updateDisplay(true);
                 }
@@ -84,7 +84,7 @@ export default class Game extends Phaser.Scene {
                 return;
             }
             else {
-                if(this.purchaseHub.purchaseHubVisible) {
+                if(PurchaseHub.purchaseHubVisible) {
                     this.purchaseHub.updated = false;
                     this.purchaseHub.updateDisplay(false);
                 }
@@ -150,6 +150,7 @@ export default class Game extends Phaser.Scene {
         
         PurchaseHub.turns++;
         GameManager.onlineRoom.send("reset",{});
+        Game.gameBall.phyBody.setPosition(GameManager.width/2, GameManager.height/2);
 
     }
 
@@ -220,6 +221,27 @@ export default class Game extends Phaser.Scene {
         GameManager.onlineRoom.onMessage("opponentPosition", this.showOpponentTeleport.bind(this, this));
         GameManager.onlineRoom.onMessage("score", this.score.bind(this, this));
         GameManager.onlineRoom.onMessage("startCountdown", this.startCountdown.bind(this, this));
+        GameManager.onlineRoom.onMessage("buyBomb", this.buyBomb.bind(this, this));
+        GameManager.onlineRoom.onMessage("sellBomb", this.sellBomb.bind(this, this));
+    }
+
+    buyBomb(scene:this, data:{resultingBombs:number, usedCoins:number, coins:number}){
+        
+        if(scene.purchaseHub == undefined) return;
+        GameManager.playerLoadout.bombs = data.resultingBombs;
+        GameManager.playerLoadout.coins = data.coins;
+        GameManager.playerLoadout.usedCoins = data.usedCoins;
+        scene.purchaseHub.updated = false;
+        scene.purchaseHub.updateDisplay(true);
+    }
+
+    sellBomb(scene:this, data:{resultingBombs:number, usedCoins:number, coins:number}) {
+        if(scene.purchaseHub == undefined) return;
+        GameManager.playerLoadout.bombs = data.resultingBombs;
+        GameManager.playerLoadout.coins = data.coins;
+        GameManager.playerLoadout.usedCoins = data.usedCoins;
+        scene.purchaseHub.updated = false;
+        scene.purchaseHub.updateDisplay(true);
     }
 
     startCountdown(scene:this, data:{delay:boolean}) {
@@ -366,7 +388,7 @@ export default class Game extends Phaser.Scene {
             Game.gameBall.setPosition(gameBall.x, gameBall.y);
         }
 
-        Game.gameBall.radius = gameBall.radius + 4;
+        Game.gameBall.radius = gameBall.radius;
         Game.gameBall.velocityX = gameBall.velocityX;
         Game.gameBall.velocityY = gameBall.velocityY;
 
@@ -494,7 +516,7 @@ export default class Game extends Phaser.Scene {
                 var airFriction = (this.settings.getChildByName('airFriction') as HTMLInputElement).value;
                 var bombsAvailable = parseInt((this.settings.getChildByName('bombsAvailable') as HTMLInputElement).value);
                 var bounce = (this.settings.getChildByName('bounce') as HTMLInputElement).value;
-                var ballSize = (this.settings.getChildByName('ballSize') as HTMLInputElement).value;
+                var ballSize = parseInt((this.settings.getChildByName('ballSize') as HTMLInputElement).value);
                 var netcode = (this.settings.getChildByName('netcode') as HTMLInputElement).value;
 
                 GameManager.onlineRoom.send("adjustedSettings", {
@@ -543,6 +565,7 @@ export default class Game extends Phaser.Scene {
         GameManager.solidPlayers = data.solidPlayers.toString() == "1";
         GameManager.netcode = data.netcode.toString() == "1";
 
+        Game.gameBall.radius = data.ballSize;
         Game.gameBall.phyBody.setCircle(data.ballSize, {
             restitution: data.bounce,
             frictionAir: data.airFriction,

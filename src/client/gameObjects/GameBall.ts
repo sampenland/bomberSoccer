@@ -1,5 +1,6 @@
 import GameManager from "../globals/GameManager";
 import Game from "../scenes/Game";
+import PurchaseHub from "./PurchaseHub";
 
 export default class GameBall extends Phaser.GameObjects.Sprite {
 
@@ -73,7 +74,6 @@ export default class GameBall extends Phaser.GameObjects.Sprite {
 
     updateNetPosition(x:number, y:number, velX:number, velY:number) {
 
-        console.log(x, y);
         this.phyBody.setVelocity(velX, velY);
 
         if(this.netX == this.phyBody.x && this.netY == this.phyBody.y) return;
@@ -94,9 +94,11 @@ export default class GameBall extends Phaser.GameObjects.Sprite {
         this.drawer.clear();
         
         this.drawer.fillStyle(0xcbffd8, 1);
-        this.drawer.fillCircle(this.x, this.y, this.radius);
-
-        this.drawer.lineBetween(this.x, this.y, this.x + this.velocityX * 100, this.y + this.velocityY * 100);
+        if(!PurchaseHub.purchaseHubVisible) 
+        {
+            this.drawer.fillCircle(this.x, this.y, this.radius);
+            this.drawer.lineBetween(this.x, this.y, this.x + this.velocityX * 100, this.y + this.velocityY * 100);
+        }
 
         if(GameManager.debug) {
 

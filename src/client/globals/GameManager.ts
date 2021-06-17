@@ -17,7 +17,7 @@ export class SpecialType {
 
 export default class GameManager {
 
-    public static debug:boolean = false;
+    public static debug:boolean = true;
     public static netcode:boolean = false;
 
     public static width:number;
